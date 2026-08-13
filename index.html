@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphical Hangman Ultimate</title>
+    <style>
+        /* --- CSS Variables for Light/Dark Mode --- */
+        :root {
+            --bg-color: #FDF6E3;
+            --text-color: #2C3E50;
+            --subtitle-color: #7F8C8D;
+            --key-bg: #ECF0F1;
+            --key-text: #2C3E50;
+            --key-hover: #BDC3C7;
+            --hangman-stick: #34495E;
+            --fail-bg: #2C3E50;
+            --fail-text: white;
+        }
+
+        body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #E0E0E0;
+            --subtitle-color: #A0A0A0;
+            --key-bg: #2A2A2A;
+            --key-text: #E0E0E0;
+            --key-hover: #404040;
+            --hangman-stick: #E0E0E0;
+            --fail-bg: #1A1A1A;
+            --fail-text: #E74C3C;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Helvetica', Arial, sans-serif;
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* --- Theme Toggle Button --- */
+        #theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #theme-toggle:hover { transform: scale(1.1); }
+
+        #app-container {
+            width: 420px;
+            padding: 20px;
+        }
+
+        /* --- Menu UI --- */
+        #menu-screen h1 {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        #menu-screen h3 {
+            font-size: 16px;
+            color: var(--subtitle-color);
+            margin-bottom: 40px;
+        }
+        .category-btn {
+            font-size: 14px;
+            font-weight: bold;
+            width: 250px;
+            background-color: #1ABC9C;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            margin: 12px auto;
+            cursor: pointer;
+            display: block;
+        }
+        .category-btn:hover { background-color: #16A085; }
+
+        /* --- Game UI --- */
+        #game-screen { display: none; }
+        
+        #streak-frame {
+            background-color: #2C3E50;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        #streak-label {
+            color: #F1C40F;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        canvas {
+            background-color: var(--bg-color);
+            margin: 10px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #word-display {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 30px; 
+            font-weight: bold;
+            margin: 15px 0;
+            letter-spacing: 5px;
+            white-space: nowrap; 
+            color: var(--text-color);
+        }
+
+        /* Keyboard styling */
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+        .key-btn {
+            font-size: 13px;
+            font-weight: bold;
+            width: 35px;
+            height: 35px;
+            background-color: var(--key-bg);
+            color: var(--key-text);
+            border: none;
+            margin: 0 3px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .key-btn:hover:not(:disabled) { background-color: var(--key-hover); }
+        .key-btn:disabled { cursor: not-allowed; color: white; }
+        .key-correct { background-color: #2ECC71 !important; color: white !important; }
+        .key-wrong { background-color: var(--bg-color) !important; color: var(--key-hover) !important; } 
+
+        #status-label {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            min-height: 30px;
+        }
+
+        #hint-btn {
+            font-size: 12px;
+            font-weight: bold;
+            background-color: #F39C12;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        #hint-btn:disabled { background-color: #BDC3C7; cursor: not-allowed; }
+
+        #end-buttons {
+            display: none;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .end-btn {
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 45%;
+        }
+        #play-next-btn { background-color: #2ECC71; }
+        #menu-back-btn { background-color: #3498DB; }
+
+        /* --- Failed State Override --- */
+        body.failed-state {
+            background-color: var(--fail-bg) !important;
+            color: var(--fail-text) !important;
+        }
+        body.failed-state canvas {
+            background-color: var(--fail-bg) !important;
+        }
+        body.failed-state #word-display {
+            color: #E74C3C !important;
+        }
+    </style>
+</head>
+<body>
+
+<button id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">🌙</button>
+
+<div id="app-container">
+    <!-- Main Menu -->
+    <div id="menu-screen">
+        <h1>HANGMAN</h1>
+        <h3>Select a Category:</h3>
+        <button class="category-btn" onclick="selectCategory('LIVING THINGS')">🦁 Living Things</button>
+        <button class="category-btn" onclick="selectCategory('FOOD ITEMS')">🍔 Food Items</button>
+        <button class="category-btn" onclick="selectCategory('ANY WORD')">🔤 Any Word</button>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen">
+        <div id="streak-frame">
+            <div id="streak-label">🔥 STREAK: 0 &nbsp;&nbsp;&nbsp;&nbsp; 👑 BEST: 0</div>
+        </div>
+
+        <canvas id="hangman-canvas" width="300" height="230"></canvas>
+
+        <div id="word-display"></div>
+
+        <div id="keyboard"></div>
+
+        <div id="status-label"></div>
+
+        <button id="hint-btn" onclick="useHint()">💡 Hint (3)</button>
+
+        <div id="end-buttons">
+            <button id="play-next-btn" class="end-btn" onclick="startGame()">PLAY NEXT</button>
+            <button id="menu-back-btn" class="end-btn" onclick="showMenu()">MAIN MENU</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Data & State ---
+    const categories = {
+        "FOOD ITEMS": [
+            "APPLE", "BANANA", "MANGO", "ORANGE", "GRAPES", "PINEAPPLE", "WATERMELON",
+            "PAPAYA", "GUAVA", "POMEGRANATE", "STRAWBERRY", "KIWI", "PEACH", "PLUM",
+            "LYCHEE", "POTATO", "TOMATO", "ONION", "CARROT", "CABBAGE", "CAULIFLOWER",
+            "SPINACH", "BRINJAL", "CUCUMBER", "PUMPKIN", "BEETROOT", "RADISH", "CAPSICUM",
+            "PEAS", "LADYFINGER", "BIRYANI", "PIZZA", "BURGER", "SUSHI", 
+            "CROISSANT", "TACO", "PASTA", "LASAGNA", "RAMEN", "BURRITO", 
+            "FALAFEL", "KEBAB", "FAJITA", "PAELLA", "DIMSUM", "WAFFLE", 
+            "PRETZEL", "NACHOS", "STEAK", "CAVIAR", "CHURRO"
+        ],
+        "LIVING THINGS": [
+            "LION", "TIGER", "ELEPHANT", "GIRAFFE", "ZEBRA", "HORSE", "DOG", "CAT",
+            "WOLF", "FOX", "BEAR", "DEER", "RABBIT", "SQUIRREL", "KANGAROO", "KOALA",
+            "PANDA", "GORILLA", "CHIMPANZEE", "MONKEY", "CAMEL", "DONKEY", "GOAT",
+            "SHEEP", "COW", "BUFFALO", "BISON", "RHINOCEROS", "HIPPOPOTAMUS", "LEOPARD",
+            "CHEETAH", "JAGUAR", "HYENA", "JACKAL", "MOOSE", "ELK", "REINDEER",
+            "PORCUPINE", "HEDGEHOG", "ARMADILLO", "ANTEATER", "SLOTH", "MOLE", "BAT",
+            "RACCOON", "SKUNK", "OTTER", "BADGER", "WEASEL", "MONGOOSE", "SHARK",
+            "WHALE", "DOLPHIN", "OCTOPUS", "SQUID", "JELLYFISH", "CRAB", "LOBSTER",
+            "SHRIMP", "STARFISH", "SEAHORSE", "SEAURCHIN", "CLAM", "OYSTER", "MUSSEL",
+            "SEASNAIL", "CORAL", "SEAANEMONE", "STINGRAY", "EEL", "TUNA", "SALMON",
+            "TROUT", "CATFISH", "GOLDFISH", "CLOWNFISH", "ANGELFISH", "SWORDFISH",
+            "MARLIN", "BARRACUDA", "PUFFERFISH", "MANTARAY", "SEATURTLE", "SEALION",
+            "SEAL", "WALRUS", "NARWHAL", "ORCA", "MANATEE", "DUGONG", "SEAOTTER",
+            "SEACUCUMBER", "NAUTILUS", "KRILL", "PLANKTON", "HERRING", "SARDINE",
+            "MACKEREL", "HAMMERHEADSHARK", "PIRANHA", "EAGLE", "SPARROW", "PARROT",
+            "PEACOCK", "OWL", "CROW", "PIGEON", "SWAN", "FLAMINGO", "PENGUIN"
+        ],
+        "ANY WORD": [
+            "APPLE", "ANT", "AIRPLANE", "ACTOR", "ANSWER", "BALL", "BOOK", "BANANA",
+            "BRIDGE", "BUTTERFLY", "CAT", "CAR", "CANDLE", "CASTLE", "CIRCLE", "DOG",
+            "DOOR", "DRAGON", "DIAMOND", "DESERT", "ELEPHANT", "EAGLE", "ENGINE",
+            "ENERGY", "ECHO", "FISH", "FLOWER", "FOREST", "FAMILY", "FREEDOM", "GARDEN",
+            "GUITAR", "GALAXY", "GHOST", "GIRAFFE", "HOUSE", "HORSE", "HONEY", "HAMMER",
+            "HARMONY", "ISLAND", "ICE", "IDEA", "INSTRUMENT", "IRON", "JUNGLE",
+            "JACKET", "JOURNEY", "JEWEL", "JIGSAW", "KITE", "KEY", "KITCHEN", "KINGDOM",
+            "KOALA", "LION", "LAMP", "LIBRARY", "LEMON", "LADDER", "MOUNTAIN", "MOON",
+            "MUSIC", "MIRROR", "MAGNET", "NIGHT", "NEST", "NATION", "NEEDLE", "NECTAR",
+            "OCEAN", "ORANGE", "OXYGEN", "OWL", "ORBIT", "PIANO", "PLANET", "PENCIL",
+            "PUZZLE", "PALACE", "QUEEN", "QUILT", "QUARTZ", "QUESTION", "QUEST",
+            "RIVER", "RAINBOW", "ROCKET", "ROBOT", "RIBBON", "SUN", "STAR", "SNAKE",
+            "SILVER", "SYMPHONY", "TIGER", "TREE", "TRAIN", "TEMPLE", "TRUMPET",
+            "UMBRELLA", "UNIVERSE", "UNICORN", "UNIFORM", "UTENSIL", "VALLEY", "VIOLIN",
+            "VOLCANO", "VILLAGE", "VITAMIN", "WATER", "WINDOW", "WIZARD", "WOLF",
+            "WONDER", "XYLOPHONE", "XRAY", "XENON", "XEROX", "XMAS", "YELLOW", "YACHT",
+            "YOGURT", "YARN", "YOUTH", "ZEBRA", "ZOO", "ZERO", "ZENITH", "ZEPHYR"
+        ]
+    };
+
+    let currentCategoryWords = [];
+    let secretWord = "";
+    let guessedLetters = new Set();
+    let attempts = 6;
+    let hintsRemaining = 3;
+    let currentStreak = 0;
+    let bestStreak = 0;
+    let isDarkMode = false;
+
+    // --- Theme Logic ---
+    function toggleTheme() {
+        isDarkMode = !isDarkMode;
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        document.getElementById('theme-toggle').innerText = isDarkMode ? '☀️' : '🌙';
+        
+        // Redraw canvas if game is active so the stick figure updates color
+        if (document.getElementById('game-screen').style.display === 'block') {
+            drawHangman();
+        }
+    }
+
+    // --- Keyboard UI ---
+    const keyboardLayout = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
+    const keyboardDiv = document.getElementById('keyboard');
+    const keyButtons = {};
+
+    keyboardLayout.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'keyboard-row';
+        row.split('').forEach(letter => {
+            const btn = document.createElement('button');
+            btn.className = 'key-btn';
+            btn.innerText = letter;
+            btn.onclick = () => handleGuess(letter);
+            keyButtons[letter] = btn;
+            rowDiv.appendChild(btn);
+        });
+        keyboardDiv.appendChild(rowDiv);
+    });
+
+    // --- Physical Keyboard Listener ---
+    document.addEventListener('keydown', (event) => {
+        const key = event.key.toUpperCase();
+        if (key === 'ENTER') {
+            if (secretWord === "") startGame();
+            return;
+        }
+        if (key === '?' || key === '1') {
+            if (secretWord && attempts > 0) useHint();
+            return;
+        }
+        if (secretWord && attempts > 0 && /^[A-Z]$/.test(key)) {
+            if (!guessedLetters.has(key)) {
+                handleGuess(key);
+            }
+        }
+    });
+
+    // --- Core Functions ---
+    function showMenu() {
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('menu-screen').style.display = 'block';
+        document.body.classList.remove('failed-state');
+    }
+
+    function selectCategory(category) {
+        currentCategoryWords = categories[category];
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        startGame();
+    }
+
+    function startGame() {
+        secretWord = currentCategoryWords[Math.floor(Math.random() * currentCategoryWords.length)];
+        guessedLetters.clear();
+        attempts = 6;
+        hintsRemaining = 3;
+
+        document.body.classList.remove('failed-state');
+        document.getElementById('end-buttons').style.display = 'none';
+        
+        const hintBtn = document.getElementById('hint-btn');
+        hintBtn.style.display = 'inline-block';
+        hintBtn.disabled = false;
+        hintBtn.innerText = `💡 Hint (${hintsRemaining})`;
+        hintBtn.style.backgroundColor = '#F39C12';
+        
+        document.getElementById('status-label').innerText = "";
+        updateStreakUI();
+
+        // Reset keyboard buttons (fixed the disappearing letter issue)
+        for (const [letter, btn] of Object.entries(keyButtons)) {
+            btn.disabled = false;
+            btn.className = 'key-btn';
+            btn.innerText = letter;
+        }
+
+        drawHangman();
+
+        const uniqueLetters = [...new Set(secretWord)];
+        if (uniqueLetters.length > 0) {
+            const preCorrect = uniqueLetters[Math.floor(Math.random() * uniqueLetters.length)];
+            handleGuess(preCorrect, true);
+        }
+
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+        const wrongPool = alphabet.filter(l => !secretWord.includes(l));
+        if (wrongPool.length >= 2) {
+            for(let i=0; i<2; i++) {
+                const idx = Math.floor(Math.random() * wrongPool.length);
+                const wLetter = wrongPool.splice(idx, 1)[0];
+                guessedLetters.add(wLetter);
+                keyButtons[wLetter].disabled = true;
+                keyButtons[wLetter].classList.add('key-wrong');
+                keyButtons[wLetter].innerText = "✕";
+            }
+        }
+
+        updateWordDisplay();
+    }
+
+    function updateWordDisplay() {
+        let display = secretWord.split('').map(char => guessedLetters.has(char) ? char : "_").join(" ");
+        document.getElementById('word-display').innerText = display;
+    }
+
+    function updateStreakUI() {
+        document.getElementById('streak-label').innerHTML = `🔥 STREAK: ${currentStreak} &nbsp;&nbsp;&nbsp;&nbsp; 👑 BEST: ${bestStreak}`;
+    }
+
+    function handleGuess(letter, isPreReveal = false) {
+        guessedLetters.add(letter);
+        const btn = keyButtons[letter];
+
+        if (secretWord.includes(letter)) {
+            btn.classList.add('key-correct');
+            btn.disabled = true;
+        } else {
+            if (!isPreReveal) attempts--;
+            btn.classList.add('key-wrong');
+            btn.innerText = "✕";
+            btn.disabled = true;
+            drawHangman();
+        }
+
+        updateWordDisplay();
+        if (!isPreReveal) checkGameOver();
+    }
+
+    function useHint() {
+        if (hintsRemaining > 0) {
+            const unguessed = secretWord.split('').filter(char => !guessedLetters.has(char));
+            if (unguessed.length > 0) {
+                currentStreak = 0;
+                updateStreakUI();
+                
+                const hintLetter = unguessed[Math.floor(Math.random() * unguessed.length)];
+                handleGuess(hintLetter);
+                
+                hintsRemaining--;
+                const hintBtn = document.getElementById('hint-btn');
+                hintBtn.innerText = `💡 Hint (${hintsRemaining})`;
+                
+                if (hintsRemaining === 0) {
+                    hintBtn.disabled = true;
+                }
+            }
+        }
+    }
+
+    function drawHangman() {
+        const canvas = document.getElementById('hangman-canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.lineWidth = 5;
+        ctx.lineCap = "round";
+        
+        // Base structure
+        ctx.strokeStyle = "#7F8C8D";
+        ctx.beginPath();
+        ctx.moveTo(50, 220); ctx.lineTo(250, 220); // Base
+        ctx.moveTo(100, 220); ctx.lineTo(100, 20); // Pole
+        ctx.moveTo(100, 20); ctx.lineTo(200, 20);  // Top
+        ctx.moveTo(200, 20); ctx.lineTo(200, 50);  // Rope
+        ctx.stroke();
+
+        // Pulls stick figure color from CSS variables dynamically
+        const stickThemeColor = getComputedStyle(document.body).getPropertyValue('--hangman-stick').trim();
+        let stickColor = attempts === 0 ? "#E74C3C" : stickThemeColor;
+        ctx.strokeStyle = stickColor;
+
+        ctx.beginPath();
+        if (attempts < 6) { ctx.arc(200, 75, 25, 0, Math.PI * 2); } // Head
+        if (attempts < 5) { ctx.moveTo(200, 100); ctx.lineTo(200, 160); } // Body
+        if (attempts < 4) { ctx.moveTo(200, 110); ctx.lineTo(160, 140); } // Left arm
+        if (attempts < 3) { ctx.moveTo(200, 110); ctx.lineTo(240, 140); } // Right arm
+        if (attempts < 2) { ctx.moveTo(200, 160); ctx.lineTo(170, 200); } // Left leg
+        if (attempts < 1) { ctx.moveTo(200, 160); ctx.lineTo(230, 200); } // Right leg
+        ctx.stroke();
+
+        if (attempts === 0) {
+            ctx.fillStyle = "#E74C3C";
+            ctx.font = "bold 12px Arial";
+            ctx.fillText("x", 188, 74); 
+            ctx.fillText("x", 204, 74); 
+        }
+    }
+
+    function checkGameOver() {
+        const isWin = secretWord.split('').every(char => guessedLetters.has(char));
+        const status = document.getElementById('status-label');
+
+        if (isWin) {
+            status.innerText = "YEAH, YOU DID IT!";
+            status.style.color = "#F39C12";
+            currentStreak++;
+            if (currentStreak > bestStreak) bestStreak = currentStreak;
+            updateStreakUI();
+            endGame();
+        } 
+        else if (attempts === 0) {
+            status.innerText = "LEVEL FAILED";
+            status.style.color = "white";
+            
+            // Triggers the failed screen styling
+            document.body.classList.add('failed-state');
+            
+            const wordDisplay = document.getElementById('word-display');
+            wordDisplay.innerText = secretWord.split('').join(' ');
+            
+            currentStreak = 0;
+            updateStreakUI();
+            endGame();
+        }
+    }
+
+    function endGame() {
+        Object.values(keyButtons).forEach(btn => {
+            if (!btn.disabled) btn.disabled = true;
+        });
+        document.getElementById('hint-btn').style.display = 'none';
+        document.getElementById('end-buttons').style.display = 'flex';
+        secretWord = ""; 
+    }
+</script>
+</body>
+</html>
