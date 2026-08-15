@@ -16,6 +16,7 @@
             --hangman-stick: #34495E;
             --fail-bg: #2C3E50;
             --fail-text: white;
+            --overlay-bg: rgba(44, 62, 80, 0.9);
         }
 
         body.dark-mode {
@@ -28,6 +29,7 @@
             --hangman-stick: #E0E0E0;
             --fail-bg: #1A1A1A;
             --fail-text: #E74C3C;
+            --overlay-bg: rgba(0, 0, 0, 0.9);
         }
 
         body {
@@ -43,7 +45,7 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* --- Theme Toggle Button --- */
+        /* --- Header UI (Theme & Coins) --- */
         #theme-toggle {
             position: absolute;
             top: 20px;
@@ -56,94 +58,86 @@
         }
         #theme-toggle:hover { transform: scale(1.1); }
 
+        #coin-display {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #F39C12;
+            background-color: var(--key-bg);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
         #app-container {
             width: 420px;
             padding: 20px;
         }
 
+        /* --- Tutorial Overlay --- */
+        #tutorial-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--overlay-bg);
+            z-index: 1000;
+            display: none; /* Hidden by default, shown by JS if new user */
+            justify-content: center;
+            align-items: center;
+        }
+        #tutorial-box {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: left;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        #tutorial-box h2 { margin-top: 0; color: #1ABC9C; text-align: center; }
+        #tutorial-box p { font-size: 15px; line-height: 1.5; }
+        .practice-area {
+            background-color: var(--key-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .practice-word { font-family: 'Courier New', Courier, monospace; font-size: 24px; font-weight: bold; letter-spacing: 3px; }
+
         /* --- Menu & Subcategory UI --- */
-        #menu-screen h1, #subcategory-screen h1 {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-        #menu-screen h3, #subcategory-screen h3 {
-            font-size: 16px;
-            color: var(--subtitle-color);
-            margin-bottom: 40px;
-        }
-        
+        #menu-screen h1, #subcategory-screen h1 { font-size: 40px; margin-bottom: 10px; }
+        #menu-screen h3, #subcategory-screen h3 { font-size: 16px; color: var(--subtitle-color); margin-bottom: 40px; }
         #subcategory-screen { display: none; }
 
         .category-btn {
-            font-size: 14px;
-            font-weight: bold;
-            width: 250px;
-            background-color: #1ABC9C;
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            margin: 12px auto;
-            cursor: pointer;
-            display: block;
+            font-size: 14px; font-weight: bold; width: 250px;
+            background-color: #1ABC9C; color: white;
+            padding: 12px; border: none; border-radius: 5px;
+            margin: 12px auto; cursor: pointer; display: block;
         }
         .category-btn:hover { background-color: #16A085; }
-
-        .back-btn {
-            background-color: #7F8C8D;
-            margin-top: 30px;
-        }
+        .back-btn { background-color: #7F8C8D; margin-top: 30px; }
         .back-btn:hover { background-color: #95A5A6; }
 
         /* --- Game UI --- */
         #game-screen { display: none; }
-        
-        #streak-frame {
-            background-color: #2C3E50;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        #streak-label {
-            color: #F1C40F;
-            font-size: 14px;
-            font-weight: bold;
-        }
+        #streak-frame { background-color: #2C3E50; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        #streak-label { color: #F1C40F; font-size: 14px; font-weight: bold; }
 
-        canvas {
-            background-color: var(--bg-color);
-            margin: 10px 0;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
+        canvas { background-color: var(--bg-color); margin: 10px 0; border-radius: 5px; transition: background-color 0.3s; }
 
         #word-display {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 30px; 
-            font-weight: bold;
-            margin: 15px 0;
-            letter-spacing: 5px;
-            white-space: nowrap; 
-            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace; font-size: 30px; font-weight: bold;
+            margin: 15px 0; letter-spacing: 5px; white-space: nowrap; color: var(--text-color);
         }
 
-        /* Keyboard styling */
-        .keyboard-row {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 5px;
-        }
+        .keyboard-row { display: flex; justify-content: center; margin-bottom: 5px; }
         .key-btn {
-            font-size: 13px;
-            font-weight: bold;
-            width: 35px;
-            height: 35px;
-            background-color: var(--key-bg);
-            color: var(--key-text);
-            border: none;
-            margin: 0 3px;
-            border-radius: 3px;
-            cursor: pointer;
+            font-size: 13px; font-weight: bold; width: 35px; height: 35px;
+            background-color: var(--key-bg); color: var(--key-text);
+            border: none; margin: 0 3px; border-radius: 3px; cursor: pointer;
             transition: background-color 0.2s, color 0.2s;
         }
         .key-btn:hover:not(:disabled) { background-color: var(--key-hover); }
@@ -151,63 +145,52 @@
         .key-correct { background-color: #2ECC71 !important; color: white !important; }
         .key-wrong { background-color: var(--bg-color) !important; color: var(--key-hover) !important; } 
 
-        #status-label {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 10px 0;
-            min-height: 30px;
-        }
+        #status-label { font-size: 24px; font-weight: bold; margin: 10px 0; min-height: 30px; }
 
         #hint-btn {
-            font-size: 12px;
-            font-weight: bold;
-            background-color: #F39C12;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-bottom: 10px;
+            font-size: 14px; font-weight: bold; background-color: #F39C12; color: white;
+            border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 10px;
         }
-        #hint-btn:disabled { background-color: #BDC3C7; cursor: not-allowed; }
+        #hint-btn:disabled { background-color: #BDC3C7 !important; cursor: not-allowed; }
 
-        #end-buttons {
-            display: none;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-        .end-btn {
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 45%;
-        }
+        #end-buttons { display: none; justify-content: space-between; margin-top: 15px; }
+        .end-btn { font-size: 14px; font-weight: bold; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; width: 45%; }
         #play-next-btn { background-color: #2ECC71; }
         #menu-back-btn { background-color: #3498DB; }
 
-        /* --- Failed State Override --- */
-        body.failed-state {
-            background-color: var(--fail-bg) !important;
-            color: var(--fail-text) !important;
-        }
-        body.failed-state canvas {
-            background-color: var(--fail-bg) !important;
-        }
-        body.failed-state #word-display {
-            color: #E74C3C !important;
-        }
+        body.failed-state { background-color: var(--fail-bg) !important; color: var(--fail-text) !important; }
+        body.failed-state canvas { background-color: var(--fail-bg) !important; }
+        body.failed-state #word-display { color: #E74C3C !important; }
     </style>
 </head>
 <body>
 
+<!-- Persistent Header UI -->
+<div id="coin-display">💰 <span id="coin-count">0</span></div>
 <button id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">🌙</button>
 
+<!-- Tutorial Overlay -->
+<div id="tutorial-overlay">
+    <div id="tutorial-box">
+        <h2>How to Play 📖</h2>
+        <p><strong>Step 1:</strong> Select a category and try to guess the hidden word.</p>
+        <p><strong>Step 2:</strong> You have 6 chances. 6 wrong guesses and the Hangman drops!</p>
+        <p><strong>Step 3:</strong> Win rounds to earn coins (💰). Stuck? Spend 15 💰 to reveal a correct letter.</p>
+        
+        <div class="practice-area">
+            <p style="margin-top: 0; color: var(--subtitle-color);">PRACTICE ROUND</p>
+            <div class="practice-word">H A N G M A _</div>
+            <p>Which letter completes the word?</p>
+            <button class="key-btn" onclick="practiceGuess('Z')">Z</button>
+            <button class="key-btn" onclick="practiceGuess('N')">N</button>
+            <p id="practice-msg" style="font-weight: bold; min-height: 20px;"></p>
+            <button id="finish-tutorial-btn" class="category-btn" style="display:none; width: 100%;" onclick="closeTutorial()">Collect 50 💰 & Start</button>
+        </div>
+    </div>
+</div>
+
 <div id="app-container">
-    <!-- 1. Main Menu Screen -->
+    <!-- Main Menu -->
     <div id="menu-screen">
         <h1>HANGMAN</h1>
         <h3>Select a Category:</h3>
@@ -216,31 +199,26 @@
         <button class="category-btn" onclick="selectCategory('ANY WORD')">🔤 Any Word</button>
     </div>
 
-    <!-- 2. NEW Subcategory Screen -->
+    <!-- Subcategory Menu -->
     <div id="subcategory-screen">
         <h1>HANGMAN</h1>
         <h3 id="subcategory-title">Select a Subcategory:</h3>
-        <div id="subcategory-buttons">
-            <!-- Buttons will be injected here by JavaScript -->
-        </div>
+        <div id="subcategory-buttons"></div>
         <button class="category-btn back-btn" onclick="showMenu()">🔙 Back to Menu</button>
     </div>
 
-    <!-- 3. Game Screen -->
+    <!-- Game Screen -->
     <div id="game-screen">
         <div id="streak-frame">
             <div id="streak-label">🔥 STREAK: 0 &nbsp;&nbsp;&nbsp;&nbsp; 👑 BEST: 0</div>
         </div>
-
         <canvas id="hangman-canvas" width="300" height="230"></canvas>
-
         <div id="word-display"></div>
-
         <div id="keyboard"></div>
-
         <div id="status-label"></div>
-
-        <button id="hint-btn" onclick="useHint()">💡 Hint (3)</button>
+        
+        <!-- Upgraded Hint Button -->
+        <button id="hint-btn" onclick="useHint()">💡 Hint (15 💰)</button>
 
         <div id="end-buttons">
             <button id="play-next-btn" class="end-btn" onclick="startGame()">PLAY NEXT</button>
@@ -250,7 +228,7 @@
 </div>
 
 <script>
-    // --- Data & State (Reorganized into Subcategories) ---
+    // --- Data Lists ---
     const categories = {
         "FOOD ITEMS": {
             "FRUITS": ["APPLE", "BANANA", "MANGO", "ORANGE", "GRAPES", "PINEAPPLE", "WATERMELON", "PAPAYA", "GUAVA", "POMEGRANATE", "STRAWBERRY", "KIWI", "PEACH", "PLUM", "LYCHEE"],
@@ -262,38 +240,83 @@
             "AQUATIC ANIMALS": ["OTTER", "SHARK", "WHALE", "DOLPHIN", "OCTOPUS", "SQUID", "JELLYFISH", "CRAB", "LOBSTER", "SHRIMP", "STARFISH", "SEAHORSE", "SEAURCHIN", "CLAM", "OYSTER", "MUSSEL", "SEASNAIL", "CORAL", "SEAANEMONE", "STINGRAY", "EEL", "TUNA", "SALMON", "TROUT", "CATFISH", "GOLDFISH", "CLOWNFISH", "ANGELFISH", "SWORDFISH", "MARLIN", "BARRACUDA", "PUFFERFISH", "MANTARAY", "SEATURTLE", "SEALION", "SEAL", "WALRUS", "NARWHAL", "ORCA", "MANATEE", "DUGONG", "SEAOTTER", "SEACUCUMBER", "NAUTILUS", "KRILL", "PLANKTON", "HERRING", "SARDINE", "MACKEREL", "HAMMERHEADSHARK", "PIRANHA"],
             "BIRDS": ["EAGLE", "SPARROW", "PARROT", "PEACOCK", "OWL", "CROW", "PIGEON", "SWAN", "FLAMINGO", "PENGUIN"]
         },
-        // 'ANY WORD' doesn't have subcategories, so it stays a direct flat list
         "ANY WORD": [
             "APPLE", "ANT", "AIRPLANE", "ACTOR", "ANSWER", "BALL", "BOOK", "BANANA", "BRIDGE", "BUTTERFLY", "CAT", "CAR", "CANDLE", "CASTLE", "CIRCLE", "DOG", "DOOR", "DRAGON", "DIAMOND", "DESERT", "ELEPHANT", "EAGLE", "ENGINE", "ENERGY", "ECHO", "FISH", "FLOWER", "FOREST", "FAMILY", "FREEDOM", "GARDEN", "GUITAR", "GALAXY", "GHOST", "GIRAFFE", "HOUSE", "HORSE", "HONEY", "HAMMER", "HARMONY", "ISLAND", "ICE", "IDEA", "INSTRUMENT", "IRON", "JUNGLE", "JACKET", "JOURNEY", "JEWEL", "JIGSAW", "KITE", "KEY", "KITCHEN", "KINGDOM", "KOALA", "LION", "LAMP", "LIBRARY", "LEMON", "LADDER", "MOUNTAIN", "MOON", "MUSIC", "MIRROR", "MAGNET", "NIGHT", "NEST", "NATION", "NEEDLE", "NECTAR", "OCEAN", "ORANGE", "OXYGEN", "OWL", "ORBIT", "PIANO", "PLANET", "PENCIL", "PUZZLE", "PALACE", "QUEEN", "QUILT", "QUARTZ", "QUESTION", "QUEST", "RIVER", "RAINBOW", "ROCKET", "ROBOT", "RIBBON", "SUN", "STAR", "SNAKE", "SILVER", "SYMPHONY", "TIGER", "TREE", "TRAIN", "TEMPLE", "TRUMPET", "UMBRELLA", "UNIVERSE", "UNICORN", "UNIFORM", "UTENSIL", "VALLEY", "VIOLIN", "VOLCANO", "VILLAGE", "VITAMIN", "WATER", "WINDOW", "WIZARD", "WOLF", "WONDER", "XYLOPHONE", "XRAY", "XENON", "XEROX", "XMAS", "YELLOW", "YACHT", "YOGURT", "YARN", "YOUTH", "ZEBRA", "ZOO", "ZERO", "ZENITH", "ZEPHYR"
         ]
     };
 
+    const subcategoryEmojis = { "FRUITS": "🍎", "VEGETABLES": "🥕", "COOKED FOODS": "🍕", "LAND ANIMALS": "🐅", "AQUATIC ANIMALS": "🦈", "BIRDS": "🦅" };
+
+    // --- State Variables (Loading from Local Storage) ---
     let currentCategoryWords = [];
     let secretWord = "";
     let guessedLetters = new Set();
     let attempts = 6;
-    let hintsRemaining = 3;
     let currentStreak = 0;
-    let bestStreak = 0;
     let isDarkMode = false;
+    
+    // Load Coins and Best Streak from Browser Storage
+    let coins = parseInt(localStorage.getItem('hangmanCoins'));
+    let bestStreak = parseInt(localStorage.getItem('hangmanBestStreak')) || 0;
 
-    // Emojis for the new subcategories
-    const subcategoryEmojis = {
-        "FRUITS": "🍎", "VEGETABLES": "🥕", "COOKED FOODS": "🍕",
-        "LAND ANIMALS": "🐅", "AQUATIC ANIMALS": "🦈", "BIRDS": "🦅"
+    // --- Initialization & Tutorial ---
+    window.onload = () => {
+        // Check if tutorial has been completed
+        if (localStorage.getItem('hangmanTutorialCompleted') !== 'true') {
+            document.getElementById('tutorial-overlay').style.display = 'flex';
+        } else {
+            // If they already played but have null coins somehow, give them 50
+            if (isNaN(coins)) updateCoins(50);
+            else document.getElementById('coin-count').innerText = coins;
+        }
     };
+
+    function practiceGuess(letter) {
+        const msg = document.getElementById('practice-msg');
+        if (letter === 'N') {
+            msg.innerHTML = "<span style='color:#2ECC71;'>Correct! The word is HANGMAN.</span>";
+            document.getElementById('finish-tutorial-btn').style.display = 'block';
+        } else {
+            msg.innerHTML = "<span style='color:#E74C3C;'>Oops! Try the other letter.</span>";
+        }
+    }
+
+    function closeTutorial() {
+        localStorage.setItem('hangmanTutorialCompleted', 'true');
+        document.getElementById('tutorial-overlay').style.display = 'none';
+        
+        // Give starter coins if they don't have an economy saved yet
+        if (isNaN(coins)) {
+            coins = 0; // Set to 0 temporarily so updateCoins(50) makes it exactly 50
+            updateCoins(50);
+        }
+    }
+
+    function updateCoins(amount) {
+        coins += amount;
+        localStorage.setItem('hangmanCoins', coins);
+        document.getElementById('coin-count').innerText = coins;
+        evaluateHintButton();
+    }
+
+    function evaluateHintButton() {
+        const hintBtn = document.getElementById('hint-btn');
+        if (coins < 15) {
+            hintBtn.disabled = true;
+        } else {
+            hintBtn.disabled = false;
+        }
+    }
 
     // --- Theme Logic ---
     function toggleTheme() {
         isDarkMode = !isDarkMode;
         document.body.classList.toggle('dark-mode', isDarkMode);
         document.getElementById('theme-toggle').innerText = isDarkMode ? '☀️' : '🌙';
-        if (document.getElementById('game-screen').style.display === 'block') {
-            drawHangman();
-        }
+        if (document.getElementById('game-screen').style.display === 'block') drawHangman();
     }
 
-    // --- Keyboard UI ---
+    // --- Keyboard UI Setup ---
     const keyboardLayout = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
     const keyboardDiv = document.getElementById('keyboard');
     const keyButtons = {};
@@ -313,21 +336,18 @@
     });
 
     document.addEventListener('keydown', (event) => {
+        // Prevent typing if tutorial is open
+        if (document.getElementById('tutorial-overlay').style.display === 'flex') return;
+
         const key = event.key.toUpperCase();
-        if (key === 'ENTER') {
-            if (secretWord === "") startGame();
-            return;
-        }
-        if (key === '?' || key === '1') {
-            if (secretWord && attempts > 0) useHint();
-            return;
-        }
+        if (key === 'ENTER') { if (secretWord === "") startGame(); return; }
+        if (key === '?' || key === '1') { if (secretWord && attempts > 0 && coins >= 15) useHint(); return; }
         if (secretWord && attempts > 0 && /^[A-Z]$/.test(key)) {
             if (!guessedLetters.has(key)) handleGuess(key);
         }
     });
 
-    // --- Screen Navigation & Setup ---
+    // --- Screen Navigation ---
     function showMenu() {
         document.getElementById('game-screen').style.display = 'none';
         document.getElementById('subcategory-screen').style.display = 'none';
@@ -336,38 +356,28 @@
     }
 
     function selectCategory(category) {
-        // If the category is an array (like "ANY WORD"), bypass the subcategory screen
         if (Array.isArray(categories[category])) {
             currentCategoryWords = categories[category];
             document.getElementById('menu-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'block';
             startGame();
-        } 
-        // If the category is an object (like "FOOD ITEMS"), open the subcategory screen
-        else {
+        } else {
             document.getElementById('menu-screen').style.display = 'none';
-            
-            // Format the title correctly (e.g., "Food Items Subcategories:")
             const formattedTitle = category.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             document.getElementById('subcategory-title').innerText = `${formattedTitle}:`;
             
-            // Generate the buttons
             const subContainer = document.getElementById('subcategory-buttons');
-            subContainer.innerHTML = ''; // Clear out any old buttons
+            subContainer.innerHTML = ''; 
             
             for (let subcat in categories[category]) {
                 const btn = document.createElement('button');
                 btn.className = 'category-btn';
-                
-                // Fetch emoji and format the text properly
                 const icon = subcategoryEmojis[subcat] || "🔹";
                 const formattedName = subcat.charAt(0) + subcat.slice(1).toLowerCase();
-                
                 btn.innerText = `${icon} ${formattedName}`;
                 btn.onclick = () => selectSubcategory(category, subcat);
                 subContainer.appendChild(btn);
             }
-            
             document.getElementById('subcategory-screen').style.display = 'block';
         }
     }
@@ -379,20 +389,18 @@
         startGame();
     }
 
+    // --- Gameplay Core ---
     function startGame() {
         secretWord = currentCategoryWords[Math.floor(Math.random() * currentCategoryWords.length)];
         guessedLetters.clear();
         attempts = 6;
-        hintsRemaining = 3;
 
         document.body.classList.remove('failed-state');
         document.getElementById('end-buttons').style.display = 'none';
         
         const hintBtn = document.getElementById('hint-btn');
         hintBtn.style.display = 'inline-block';
-        hintBtn.disabled = false;
-        hintBtn.innerText = `💡 Hint (${hintsRemaining})`;
-        hintBtn.style.backgroundColor = '#F39C12';
+        evaluateHintButton(); // Checks if they have 15 coins
         
         document.getElementById('status-label').innerText = "";
         updateStreakUI();
@@ -423,11 +431,9 @@
                 keyButtons[wLetter].innerText = "✕";
             }
         }
-
         updateWordDisplay();
     }
 
-    // --- Gameplay Core ---
     function updateWordDisplay() {
         let display = secretWord.split('').map(char => guessedLetters.has(char) ? char : "_").join(" ");
         document.getElementById('word-display').innerText = display;
@@ -457,22 +463,14 @@
     }
 
     function useHint() {
-        if (hintsRemaining > 0) {
+        if (coins >= 15) {
             const unguessed = secretWord.split('').filter(char => !guessedLetters.has(char));
             if (unguessed.length > 0) {
-                currentStreak = 0;
-                updateStreakUI();
+                // Remove Streak penalty, deduct economy instead!
+                updateCoins(-15);
                 
                 const hintLetter = unguessed[Math.floor(Math.random() * unguessed.length)];
                 handleGuess(hintLetter);
-                
-                hintsRemaining--;
-                const hintBtn = document.getElementById('hint-btn');
-                hintBtn.innerText = `💡 Hint (${hintsRemaining})`;
-                
-                if (hintsRemaining === 0) {
-                    hintBtn.disabled = true;
-                }
             }
         }
     }
@@ -484,7 +482,6 @@
         
         ctx.lineWidth = 5;
         ctx.lineCap = "round";
-        
         ctx.strokeStyle = "#7F8C8D";
         ctx.beginPath();
         ctx.moveTo(50, 220); ctx.lineTo(250, 220); 
@@ -519,10 +516,17 @@
         const status = document.getElementById('status-label');
 
         if (isWin) {
-            status.innerText = "YEAH, YOU DID IT!";
+            status.innerText = "YOU WON! +10 💰";
             status.style.color = "#F39C12";
             currentStreak++;
-            if (currentStreak > bestStreak) bestStreak = currentStreak;
+            
+            // Save economy and best streak automatically
+            updateCoins(10);
+            if (currentStreak > bestStreak) {
+                bestStreak = currentStreak;
+                localStorage.setItem('hangmanBestStreak', bestStreak);
+            }
+            
             updateStreakUI();
             endGame();
         } 
@@ -531,7 +535,6 @@
             status.style.color = "white";
             
             document.body.classList.add('failed-state');
-            
             const wordDisplay = document.getElementById('word-display');
             wordDisplay.innerText = secretWord.split('').join(' ');
             
