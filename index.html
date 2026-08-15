@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graphical Hangman Ultimate</title>
     <style>
-        /* --- CSS Variables for Light/Dark Mode --- */
+        /* --- CSS Variables --- */
         :root {
             --bg-color: #FDF6E3;
             --text-color: #2C3E50;
@@ -33,92 +33,60 @@
         }
 
         body {
-            background-color: var(--bg-color);
-            font-family: 'Helvetica', Arial, sans-serif;
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            text-align: center;
+            background-color: var(--bg-color); font-family: 'Helvetica', Arial, sans-serif;
+            color: var(--text-color); margin: 0; display: flex; justify-content: center;
+            align-items: center; min-height: 100vh; text-align: center;
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* --- Header UI (Theme & Coins) --- */
-        #theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 28px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+        /* --- Header UI --- */
+        #theme-toggle { position: absolute; top: 20px; right: 20px; font-size: 28px; background: none; border: none; cursor: pointer; transition: transform 0.2s; }
         #theme-toggle:hover { transform: scale(1.1); }
+        #coin-display { position: absolute; top: 25px; left: 20px; font-size: 20px; font-weight: bold; color: #F39C12; background-color: var(--key-bg); padding: 5px 15px; border-radius: 20px; }
 
-        #coin-display {
-            position: absolute;
-            top: 25px;
-            left: 20px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #F39C12;
-            background-color: var(--key-bg);
-            padding: 5px 15px;
-            border-radius: 20px;
-        }
+        #app-container { width: 420px; padding: 20px; }
 
-        #app-container {
-            width: 420px;
-            padding: 20px;
+        /* --- Overlays (Tutorial & Leaderboard) --- */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--overlay-bg); z-index: 1000;
+            display: none; justify-content: center; align-items: center;
         }
-
-        /* --- Tutorial Overlay --- */
-        #tutorial-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--overlay-bg);
-            z-index: 1000;
-            display: none; /* Hidden by default, shown by JS if new user */
-            justify-content: center;
-            align-items: center;
+        .modal-box {
+            background-color: var(--bg-color); color: var(--text-color);
+            padding: 30px; border-radius: 10px; width: 90%; max-width: 400px;
+            text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-        #tutorial-box {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            text-align: left;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-        #tutorial-box h2 { margin-top: 0; color: #1ABC9C; text-align: center; }
-        #tutorial-box p { font-size: 15px; line-height: 1.5; }
-        .practice-area {
-            background-color: var(--key-bg);
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            margin-top: 20px;
-        }
+        .modal-box h2 { margin-top: 0; color: #1ABC9C; text-align: center; }
+        .modal-box p { font-size: 15px; line-height: 1.5; }
+        
+        .name-input { width: 100%; padding: 10px; margin-top: 10px; border: 2px solid #BDC3C7; border-radius: 5px; font-size: 16px; box-sizing: border-box; font-weight:bold; text-align:center; }
+        
+        .practice-area { background-color: var(--key-bg); padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; }
         .practice-word { font-family: 'Courier New', Courier, monospace; font-size: 24px; font-weight: bold; letter-spacing: 3px; }
 
-        /* --- Menu & Subcategory UI --- */
-        #menu-screen h1, #subcategory-screen h1 { font-size: 40px; margin-bottom: 10px; }
-        #menu-screen h3, #subcategory-screen h3 { font-size: 16px; color: var(--subtitle-color); margin-bottom: 40px; }
+        /* Leaderboard Specifics */
+        .lb-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--key-hover); font-weight: bold; }
+        .lb-row:nth-child(1) { color: #F1C40F; font-size: 18px; } /* Gold */
+        .lb-row:nth-child(2) { color: #BDC3C7; font-size: 16px; } /* Silver */
+        .lb-row:nth-child(3) { color: #CD7F32; font-size: 16px; } /* Bronze */
+
+        /* --- Menu UI --- */
+        #menu-screen h1, #subcategory-screen h1 { font-size: 40px; margin-bottom: 5px; }
+        #menu-screen h3, #subcategory-screen h3 { font-size: 16px; color: var(--subtitle-color); margin-bottom: 20px; }
+        .global-stats { font-size: 14px; font-weight: bold; color: #1ABC9C; margin-bottom: 30px; }
+        
         #subcategory-screen { display: none; }
 
         .category-btn {
             font-size: 14px; font-weight: bold; width: 250px;
-            background-color: #1ABC9C; color: white;
-            padding: 12px; border: none; border-radius: 5px;
-            margin: 12px auto; cursor: pointer; display: block;
+            background-color: #1ABC9C; color: white; padding: 12px; border: none; border-radius: 5px;
+            margin: 10px auto; cursor: pointer; display: block;
         }
         .category-btn:hover { background-color: #16A085; }
-        .back-btn { background-color: #7F8C8D; margin-top: 30px; }
+        .lb-btn { background-color: #9B59B6; }
+        .lb-btn:hover { background-color: #8E44AD; }
+        .back-btn { background-color: #7F8C8D; margin-top: 20px; }
         .back-btn:hover { background-color: #95A5A6; }
 
         /* --- Game UI --- */
@@ -128,17 +96,12 @@
 
         canvas { background-color: var(--bg-color); margin: 10px 0; border-radius: 5px; transition: background-color 0.3s; }
 
-        #word-display {
-            font-family: 'Courier New', Courier, monospace; font-size: 30px; font-weight: bold;
-            margin: 15px 0; letter-spacing: 5px; white-space: nowrap; color: var(--text-color);
-        }
+        #word-display { font-family: 'Courier New', Courier, monospace; font-size: 30px; font-weight: bold; margin: 15px 0; letter-spacing: 5px; white-space: nowrap; color: var(--text-color); }
 
         .keyboard-row { display: flex; justify-content: center; margin-bottom: 5px; }
         .key-btn {
             font-size: 13px; font-weight: bold; width: 35px; height: 35px;
-            background-color: var(--key-bg); color: var(--key-text);
-            border: none; margin: 0 3px; border-radius: 3px; cursor: pointer;
-            transition: background-color 0.2s, color 0.2s;
+            background-color: var(--key-bg); color: var(--key-text); border: none; margin: 0 3px; border-radius: 3px; cursor: pointer; transition: background-color 0.2s, color 0.2s;
         }
         .key-btn:hover:not(:disabled) { background-color: var(--key-hover); }
         .key-btn:disabled { cursor: not-allowed; color: white; }
@@ -147,10 +110,7 @@
 
         #status-label { font-size: 24px; font-weight: bold; margin: 10px 0; min-height: 30px; }
 
-        #hint-btn {
-            font-size: 14px; font-weight: bold; background-color: #F39C12; color: white;
-            border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 10px;
-        }
+        #hint-btn { font-size: 14px; font-weight: bold; background-color: #F39C12; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; }
         #hint-btn:disabled { background-color: #BDC3C7 !important; cursor: not-allowed; }
 
         #end-buttons { display: none; justify-content: space-between; margin-top: 15px; }
@@ -165,17 +125,18 @@
 </head>
 <body>
 
-<!-- Persistent Header UI -->
+<!-- Header UI -->
 <div id="coin-display">💰 <span id="coin-count">0</span></div>
 <button id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">🌙</button>
 
-<!-- Tutorial Overlay -->
-<div id="tutorial-overlay">
-    <div id="tutorial-box">
+<!-- 1. Tutorial Overlay -->
+<div id="tutorial-overlay" class="overlay">
+    <div class="modal-box">
         <h2>How to Play 📖</h2>
-        <p><strong>Step 1:</strong> Select a category and try to guess the hidden word.</p>
-        <p><strong>Step 2:</strong> You have 6 chances. 6 wrong guesses and the Hangman drops!</p>
-        <p><strong>Step 3:</strong> Win rounds to earn coins (💰). Stuck? Spend 15 💰 to reveal a correct letter.</p>
+        <input type="text" id="player-name-input" class="name-input" placeholder="Enter your Player Name..." maxlength="15">
+        <p><strong>Step 1:</strong> Select a category and guess the word.</p>
+        <p><strong>Step 2:</strong> 6 wrong guesses and the Hangman drops!</p>
+        <p><strong>Step 3:</strong> Win to earn coins (💰). Stuck? Spend 15 💰 for a hint.</p>
         
         <div class="practice-area">
             <p style="margin-top: 0; color: var(--subtitle-color);">PRACTICE ROUND</p>
@@ -189,14 +150,27 @@
     </div>
 </div>
 
+<!-- 2. Leaderboard Overlay -->
+<div id="leaderboard-overlay" class="overlay">
+    <div class="modal-box">
+        <h2>🏆 Global Top 5 🏆</h2>
+        <div id="leaderboard-list" style="margin-top: 20px; margin-bottom: 20px;">
+            <p style="text-align: center;">Loading scores...</p>
+        </div>
+        <button class="category-btn back-btn" style="width: 100%;" onclick="closeLeaderboard()">Close</button>
+    </div>
+</div>
+
 <div id="app-container">
     <!-- Main Menu -->
     <div id="menu-screen">
         <h1>HANGMAN</h1>
+        <div class="global-stats">🌍 Global Players: <span id="global-players-count">...</span></div>
         <h3>Select a Category:</h3>
         <button class="category-btn" onclick="selectCategory('LIVING THINGS')">🦁 Living Things</button>
         <button class="category-btn" onclick="selectCategory('FOOD ITEMS')">🍔 Food Items</button>
         <button class="category-btn" onclick="selectCategory('ANY WORD')">🔤 Any Word</button>
+        <button class="category-btn lb-btn" onclick="showLeaderboard()" style="margin-top:30px;">🏆 Leaderboards</button>
     </div>
 
     <!-- Subcategory Menu -->
@@ -216,10 +190,7 @@
         <div id="word-display"></div>
         <div id="keyboard"></div>
         <div id="status-label"></div>
-        
-        <!-- Upgraded Hint Button -->
         <button id="hint-btn" onclick="useHint()">💡 Hint (15 💰)</button>
-
         <div id="end-buttons">
             <button id="play-next-btn" class="end-btn" onclick="startGame()">PLAY NEXT</button>
             <button id="menu-back-btn" class="end-btn" onclick="showMenu()">MAIN MENU</button>
@@ -227,7 +198,26 @@
     </div>
 </div>
 
-<script>
+<!-- FIREBASE & GAME LOGIC -->
+<script type="module">
+    // 1. Import Firebase from Google's CDN
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // 2. Your Exact Database Keys
+    const firebaseConfig = {
+      apiKey: "AIzaSyAaqoUGldUQKrd-lcuD-5qdcuJDxztWXZw",
+      authDomain: "hangman-ultimate.firebaseapp.com",
+      projectId: "hangman-ultimate",
+      storageBucket: "hangman-ultimate.firebasestorage.app",
+      messagingSenderId: "823235885069",
+      appId: "1:823235885069:web:e938a1fd0cd9cc324d3d44",
+      measurementId: "G-TBZ9P2ZSHH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     // --- Data Lists ---
     const categories = {
         "FOOD ITEMS": {
@@ -244,34 +234,81 @@
             "APPLE", "ANT", "AIRPLANE", "ACTOR", "ANSWER", "BALL", "BOOK", "BANANA", "BRIDGE", "BUTTERFLY", "CAT", "CAR", "CANDLE", "CASTLE", "CIRCLE", "DOG", "DOOR", "DRAGON", "DIAMOND", "DESERT", "ELEPHANT", "EAGLE", "ENGINE", "ENERGY", "ECHO", "FISH", "FLOWER", "FOREST", "FAMILY", "FREEDOM", "GARDEN", "GUITAR", "GALAXY", "GHOST", "GIRAFFE", "HOUSE", "HORSE", "HONEY", "HAMMER", "HARMONY", "ISLAND", "ICE", "IDEA", "INSTRUMENT", "IRON", "JUNGLE", "JACKET", "JOURNEY", "JEWEL", "JIGSAW", "KITE", "KEY", "KITCHEN", "KINGDOM", "KOALA", "LION", "LAMP", "LIBRARY", "LEMON", "LADDER", "MOUNTAIN", "MOON", "MUSIC", "MIRROR", "MAGNET", "NIGHT", "NEST", "NATION", "NEEDLE", "NECTAR", "OCEAN", "ORANGE", "OXYGEN", "OWL", "ORBIT", "PIANO", "PLANET", "PENCIL", "PUZZLE", "PALACE", "QUEEN", "QUILT", "QUARTZ", "QUESTION", "QUEST", "RIVER", "RAINBOW", "ROCKET", "ROBOT", "RIBBON", "SUN", "STAR", "SNAKE", "SILVER", "SYMPHONY", "TIGER", "TREE", "TRAIN", "TEMPLE", "TRUMPET", "UMBRELLA", "UNIVERSE", "UNICORN", "UNIFORM", "UTENSIL", "VALLEY", "VIOLIN", "VOLCANO", "VILLAGE", "VITAMIN", "WATER", "WINDOW", "WIZARD", "WOLF", "WONDER", "XYLOPHONE", "XRAY", "XENON", "XEROX", "XMAS", "YELLOW", "YACHT", "YOGURT", "YARN", "YOUTH", "ZEBRA", "ZOO", "ZERO", "ZENITH", "ZEPHYR"
         ]
     };
-
     const subcategoryEmojis = { "FRUITS": "🍎", "VEGETABLES": "🥕", "COOKED FOODS": "🍕", "LAND ANIMALS": "🐅", "AQUATIC ANIMALS": "🦈", "BIRDS": "🦅" };
 
-    // --- State Variables (Loading from Local Storage) ---
+    // --- State Variables ---
     let currentCategoryWords = [];
     let secretWord = "";
     let guessedLetters = new Set();
     let attempts = 6;
     let currentStreak = 0;
     let isDarkMode = false;
-    
-    // Load Coins and Best Streak from Browser Storage
     let coins = parseInt(localStorage.getItem('hangmanCoins'));
     let bestStreak = parseInt(localStorage.getItem('hangmanBestStreak')) || 0;
+    let playerName = localStorage.getItem('hangmanPlayerName') || "Anonymous";
 
-    // --- Initialization & Tutorial ---
-    window.onload = () => {
-        // Check if tutorial has been completed
-        if (localStorage.getItem('hangmanTutorialCompleted') !== 'true') {
-            document.getElementById('tutorial-overlay').style.display = 'flex';
-        } else {
-            // If they already played but have null coins somehow, give them 50
-            if (isNaN(coins)) updateCoins(50);
-            else document.getElementById('coin-count').innerText = coins;
+    // --- Backend Functions ---
+    async function loadGlobalStats() {
+        try {
+            const docSnap = await getDoc(doc(db, "stats", "global"));
+            if (docSnap.exists()) {
+                document.getElementById('global-players-count').innerText = docSnap.data().totalPlayers;
+            } else {
+                document.getElementById('global-players-count').innerText = "1";
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    async function incrementGlobalPlayers() {
+        const statsRef = doc(db, "stats", "global");
+        try {
+            await updateDoc(statsRef, { totalPlayers: increment(1) });
+        } catch (e) {
+            await setDoc(statsRef, { totalPlayers: 1 }); // Creates it if it's the very first time!
         }
-    };
+        loadGlobalStats(); // Refresh the counter
+    }
 
-    function practiceGuess(letter) {
+    window.showLeaderboard = async () => {
+        document.getElementById('leaderboard-overlay').style.display = 'flex';
+        const lbList = document.getElementById('leaderboard-list');
+        lbList.innerHTML = "<p style='text-align:center;'>Fetching global scores...</p>";
+        
+        try {
+            const q = query(collection(db, "leaderboards"), orderBy("streak", "desc"), limit(5));
+            const querySnapshot = await getDocs(q);
+            lbList.innerHTML = "";
+            let rank = 1;
+            
+            if(querySnapshot.empty) { lbList.innerHTML = "<p style='text-align:center;'>No scores yet. Be the first!</p>"; }
+            
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                lbList.innerHTML += `<div class='lb-row'><span>#${rank} ${data.name}</span><span>🔥 ${data.streak}</span></div>`;
+                rank++;
+            });
+        } catch(e) { lbList.innerHTML = "<p style='text-align:center;'>Error loading leaderboard.</p>"; }
+    }
+
+    window.closeLeaderboard = () => { document.getElementById('leaderboard-overlay').style.display = 'none'; }
+
+    async function submitScoreToDatabase(finalStreak) {
+        if(finalStreak <= 0) return; // Don't submit scores of 0
+        try {
+            await addDoc(collection(db, "leaderboards"), { name: playerName, streak: finalStreak, timestamp: new Date() });
+        } catch(e) { console.error("Error saving score: ", e); }
+    }
+
+    // --- Setup & Tutorial ---
+    if (localStorage.getItem('hangmanTutorialCompleted') !== 'true') {
+        document.getElementById('tutorial-overlay').style.display = 'flex';
+    } else {
+        if (isNaN(coins)) updateCoins(50);
+        else document.getElementById('coin-count').innerText = coins;
+    }
+    loadGlobalStats(); // Runs on page load
+
+    window.practiceGuess = (letter) => {
         const msg = document.getElementById('practice-msg');
         if (letter === 'N') {
             msg.innerHTML = "<span style='color:#2ECC71;'>Correct! The word is HANGMAN.</span>";
@@ -281,221 +318,134 @@
         }
     }
 
-    function closeTutorial() {
+    window.closeTutorial = () => {
+        const nameInput = document.getElementById('player-name-input').value.trim();
+        if(nameInput) {
+            playerName = nameInput;
+            localStorage.setItem('hangmanPlayerName', playerName);
+        }
         localStorage.setItem('hangmanTutorialCompleted', 'true');
         document.getElementById('tutorial-overlay').style.display = 'none';
         
-        // Give starter coins if they don't have an economy saved yet
-        if (isNaN(coins)) {
-            coins = 0; // Set to 0 temporarily so updateCoins(50) makes it exactly 50
-            updateCoins(50);
-        }
+        if (isNaN(coins)) { coins = 0; updateCoins(50); }
+        incrementGlobalPlayers(); // Adds them to the global DB
     }
 
+    // --- Gameplay Logic ---
     function updateCoins(amount) {
-        coins += amount;
-        localStorage.setItem('hangmanCoins', coins);
-        document.getElementById('coin-count').innerText = coins;
-        evaluateHintButton();
+        coins += amount; localStorage.setItem('hangmanCoins', coins);
+        document.getElementById('coin-count').innerText = coins; evaluateHintButton();
     }
+    function evaluateHintButton() { document.getElementById('hint-btn').disabled = (coins < 15); }
 
-    function evaluateHintButton() {
-        const hintBtn = document.getElementById('hint-btn');
-        if (coins < 15) {
-            hintBtn.disabled = true;
-        } else {
-            hintBtn.disabled = false;
-        }
-    }
-
-    // --- Theme Logic ---
-    function toggleTheme() {
-        isDarkMode = !isDarkMode;
-        document.body.classList.toggle('dark-mode', isDarkMode);
+    window.toggleTheme = () => {
+        isDarkMode = !isDarkMode; document.body.classList.toggle('dark-mode', isDarkMode);
         document.getElementById('theme-toggle').innerText = isDarkMode ? '☀️' : '🌙';
         if (document.getElementById('game-screen').style.display === 'block') drawHangman();
     }
 
-    // --- Keyboard UI Setup ---
+    // Keyboard Setup
     const keyboardLayout = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
     const keyboardDiv = document.getElementById('keyboard');
     const keyButtons = {};
-
     keyboardLayout.forEach(row => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'keyboard-row';
+        const rowDiv = document.createElement('div'); rowDiv.className = 'keyboard-row';
         row.split('').forEach(letter => {
-            const btn = document.createElement('button');
-            btn.className = 'key-btn';
-            btn.innerText = letter;
-            btn.onclick = () => handleGuess(letter);
-            keyButtons[letter] = btn;
-            rowDiv.appendChild(btn);
+            const btn = document.createElement('button'); btn.className = 'key-btn'; btn.innerText = letter;
+            btn.onclick = () => handleGuess(letter); keyButtons[letter] = btn; rowDiv.appendChild(btn);
         });
         keyboardDiv.appendChild(rowDiv);
     });
 
     document.addEventListener('keydown', (event) => {
-        // Prevent typing if tutorial is open
-        if (document.getElementById('tutorial-overlay').style.display === 'flex') return;
-
+        if (document.getElementById('tutorial-overlay').style.display === 'flex' || document.getElementById('leaderboard-overlay').style.display === 'flex') return;
         const key = event.key.toUpperCase();
-        if (key === 'ENTER') { if (secretWord === "") startGame(); return; }
-        if (key === '?' || key === '1') { if (secretWord && attempts > 0 && coins >= 15) useHint(); return; }
-        if (secretWord && attempts > 0 && /^[A-Z]$/.test(key)) {
-            if (!guessedLetters.has(key)) handleGuess(key);
-        }
+        if (key === 'ENTER') { if (secretWord === "") window.startGame(); return; }
+        if (key === '?' || key === '1') { if (secretWord && attempts > 0 && coins >= 15) window.useHint(); return; }
+        if (secretWord && attempts > 0 && /^[A-Z]$/.test(key)) { if (!guessedLetters.has(key)) handleGuess(key); }
     });
 
-    // --- Screen Navigation ---
-    function showMenu() {
-        document.getElementById('game-screen').style.display = 'none';
-        document.getElementById('subcategory-screen').style.display = 'none';
-        document.getElementById('menu-screen').style.display = 'block';
-        document.body.classList.remove('failed-state');
+    // Screen Nav
+    window.showMenu = () => {
+        document.getElementById('game-screen').style.display = 'none'; document.getElementById('subcategory-screen').style.display = 'none';
+        document.getElementById('menu-screen').style.display = 'block'; document.body.classList.remove('failed-state');
     }
 
-    function selectCategory(category) {
+    window.selectCategory = (category) => {
         if (Array.isArray(categories[category])) {
-            currentCategoryWords = categories[category];
-            document.getElementById('menu-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'block';
-            startGame();
+            currentCategoryWords = categories[category]; document.getElementById('menu-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block'; window.startGame();
         } else {
             document.getElementById('menu-screen').style.display = 'none';
             const formattedTitle = category.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             document.getElementById('subcategory-title').innerText = `${formattedTitle}:`;
-            
-            const subContainer = document.getElementById('subcategory-buttons');
-            subContainer.innerHTML = ''; 
-            
+            const subContainer = document.getElementById('subcategory-buttons'); subContainer.innerHTML = ''; 
             for (let subcat in categories[category]) {
-                const btn = document.createElement('button');
-                btn.className = 'category-btn';
-                const icon = subcategoryEmojis[subcat] || "🔹";
-                const formattedName = subcat.charAt(0) + subcat.slice(1).toLowerCase();
-                btn.innerText = `${icon} ${formattedName}`;
-                btn.onclick = () => selectSubcategory(category, subcat);
+                const btn = document.createElement('button'); btn.className = 'category-btn';
+                const icon = subcategoryEmojis[subcat] || "🔹"; const formattedName = subcat.charAt(0) + subcat.slice(1).toLowerCase();
+                btn.innerText = `${icon} ${formattedName}`; btn.onclick = () => window.selectSubcategory(category, subcat);
                 subContainer.appendChild(btn);
             }
             document.getElementById('subcategory-screen').style.display = 'block';
         }
     }
 
-    function selectSubcategory(category, subcat) {
-        currentCategoryWords = categories[category][subcat];
-        document.getElementById('subcategory-screen').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'block';
-        startGame();
+    window.selectSubcategory = (category, subcat) => {
+        currentCategoryWords = categories[category][subcat]; document.getElementById('subcategory-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block'; window.startGame();
     }
 
-    // --- Gameplay Core ---
-    function startGame() {
+    window.startGame = () => {
         secretWord = currentCategoryWords[Math.floor(Math.random() * currentCategoryWords.length)];
-        guessedLetters.clear();
-        attempts = 6;
+        guessedLetters.clear(); attempts = 6;
+        document.body.classList.remove('failed-state'); document.getElementById('end-buttons').style.display = 'none';
+        document.getElementById('hint-btn').style.display = 'inline-block'; evaluateHintButton();
+        document.getElementById('status-label').innerText = ""; updateStreakUI();
 
-        document.body.classList.remove('failed-state');
-        document.getElementById('end-buttons').style.display = 'none';
-        
-        const hintBtn = document.getElementById('hint-btn');
-        hintBtn.style.display = 'inline-block';
-        evaluateHintButton(); // Checks if they have 15 coins
-        
-        document.getElementById('status-label').innerText = "";
-        updateStreakUI();
-
-        for (const [letter, btn] of Object.entries(keyButtons)) {
-            btn.disabled = false;
-            btn.className = 'key-btn';
-            btn.innerText = letter;
-        }
-
+        for (const [letter, btn] of Object.entries(keyButtons)) { btn.disabled = false; btn.className = 'key-btn'; btn.innerText = letter; }
         drawHangman();
 
         const uniqueLetters = [...new Set(secretWord)];
-        if (uniqueLetters.length > 0) {
-            const preCorrect = uniqueLetters[Math.floor(Math.random() * uniqueLetters.length)];
-            handleGuess(preCorrect, true);
-        }
-
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
-        const wrongPool = alphabet.filter(l => !secretWord.includes(l));
+        if (uniqueLetters.length > 0) handleGuess(uniqueLetters[Math.floor(Math.random() * uniqueLetters.length)], true);
+        
+        const wrongPool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').filter(l => !secretWord.includes(l));
         if (wrongPool.length >= 2) {
             for(let i=0; i<2; i++) {
-                const idx = Math.floor(Math.random() * wrongPool.length);
-                const wLetter = wrongPool.splice(idx, 1)[0];
-                guessedLetters.add(wLetter);
-                keyButtons[wLetter].disabled = true;
-                keyButtons[wLetter].classList.add('key-wrong');
-                keyButtons[wLetter].innerText = "✕";
+                const wLetter = wrongPool.splice(Math.floor(Math.random() * wrongPool.length), 1)[0];
+                guessedLetters.add(wLetter); keyButtons[wLetter].disabled = true; keyButtons[wLetter].classList.add('key-wrong'); keyButtons[wLetter].innerText = "✕";
             }
         }
         updateWordDisplay();
     }
 
-    function updateWordDisplay() {
-        let display = secretWord.split('').map(char => guessedLetters.has(char) ? char : "_").join(" ");
-        document.getElementById('word-display').innerText = display;
-    }
-
-    function updateStreakUI() {
-        document.getElementById('streak-label').innerHTML = `🔥 STREAK: ${currentStreak} &nbsp;&nbsp;&nbsp;&nbsp; 👑 BEST: ${bestStreak}`;
-    }
+    function updateWordDisplay() { document.getElementById('word-display').innerText = secretWord.split('').map(char => guessedLetters.has(char) ? char : "_").join(" "); }
+    function updateStreakUI() { document.getElementById('streak-label').innerHTML = `🔥 STREAK: ${currentStreak} &nbsp;&nbsp;&nbsp;&nbsp; 👑 BEST: ${bestStreak}`; }
 
     function handleGuess(letter, isPreReveal = false) {
-        guessedLetters.add(letter);
-        const btn = keyButtons[letter];
-
-        if (secretWord.includes(letter)) {
-            btn.classList.add('key-correct');
-            btn.disabled = true;
-        } else {
+        guessedLetters.add(letter); const btn = keyButtons[letter];
+        if (secretWord.includes(letter)) { btn.classList.add('key-correct'); btn.disabled = true; } 
+        else {
             if (!isPreReveal) attempts--;
-            btn.classList.add('key-wrong');
-            btn.innerText = "✕";
-            btn.disabled = true;
-            drawHangman();
+            btn.classList.add('key-wrong'); btn.innerText = "✕"; btn.disabled = true; drawHangman();
         }
-
-        updateWordDisplay();
-        if (!isPreReveal) checkGameOver();
+        updateWordDisplay(); if (!isPreReveal) checkGameOver();
     }
 
-    function useHint() {
+    window.useHint = () => {
         if (coins >= 15) {
             const unguessed = secretWord.split('').filter(char => !guessedLetters.has(char));
-            if (unguessed.length > 0) {
-                // Remove Streak penalty, deduct economy instead!
-                updateCoins(-15);
-                
-                const hintLetter = unguessed[Math.floor(Math.random() * unguessed.length)];
-                handleGuess(hintLetter);
-            }
+            if (unguessed.length > 0) { updateCoins(-15); handleGuess(unguessed[Math.floor(Math.random() * unguessed.length)]); }
         }
     }
 
     function drawHangman() {
-        const canvas = document.getElementById('hangman-canvas');
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const canvas = document.getElementById('hangman-canvas'); const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.strokeStyle = "#7F8C8D";
+        ctx.beginPath(); ctx.moveTo(50, 220); ctx.lineTo(250, 220); ctx.moveTo(100, 220); ctx.lineTo(100, 20); ctx.moveTo(100, 20); ctx.lineTo(200, 20); ctx.moveTo(200, 20); ctx.lineTo(200, 50); ctx.stroke();
         
-        ctx.lineWidth = 5;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = "#7F8C8D";
+        ctx.strokeStyle = attempts === 0 ? "#E74C3C" : getComputedStyle(document.body).getPropertyValue('--hangman-stick').trim();
         ctx.beginPath();
-        ctx.moveTo(50, 220); ctx.lineTo(250, 220); 
-        ctx.moveTo(100, 220); ctx.lineTo(100, 20); 
-        ctx.moveTo(100, 20); ctx.lineTo(200, 20);  
-        ctx.moveTo(200, 20); ctx.lineTo(200, 50);  
-        ctx.stroke();
-
-        const stickThemeColor = getComputedStyle(document.body).getPropertyValue('--hangman-stick').trim();
-        let stickColor = attempts === 0 ? "#E74C3C" : stickThemeColor;
-        ctx.strokeStyle = stickColor;
-
-        ctx.beginPath();
-        if (attempts < 6) { ctx.arc(200, 75, 25, 0, Math.PI * 2); }
+        if (attempts < 6) ctx.arc(200, 75, 25, 0, Math.PI * 2);
         if (attempts < 5) { ctx.moveTo(200, 100); ctx.lineTo(200, 160); }
         if (attempts < 4) { ctx.moveTo(200, 110); ctx.lineTo(160, 140); }
         if (attempts < 3) { ctx.moveTo(200, 110); ctx.lineTo(240, 140); }
@@ -503,12 +453,7 @@
         if (attempts < 1) { ctx.moveTo(200, 160); ctx.lineTo(230, 200); }
         ctx.stroke();
 
-        if (attempts === 0) {
-            ctx.fillStyle = "#E74C3C";
-            ctx.font = "bold 12px Arial";
-            ctx.fillText("x", 188, 74); 
-            ctx.fillText("x", 204, 74); 
-        }
+        if (attempts === 0) { ctx.fillStyle = "#E74C3C"; ctx.font = "bold 12px Arial"; ctx.fillText("x", 188, 74); ctx.fillText("x", 204, 74); }
     }
 
     function checkGameOver() {
@@ -516,41 +461,25 @@
         const status = document.getElementById('status-label');
 
         if (isWin) {
-            status.innerText = "YOU WON! +10 💰";
-            status.style.color = "#F39C12";
-            currentStreak++;
-            
-            // Save economy and best streak automatically
-            updateCoins(10);
-            if (currentStreak > bestStreak) {
-                bestStreak = currentStreak;
-                localStorage.setItem('hangmanBestStreak', bestStreak);
-            }
-            
-            updateStreakUI();
-            endGame();
+            status.innerText = "YOU WON! +10 💰"; status.style.color = "#F39C12";
+            currentStreak++; updateCoins(10);
+            if (currentStreak > bestStreak) { bestStreak = currentStreak; localStorage.setItem('hangmanBestStreak', bestStreak); }
+            updateStreakUI(); endGame();
         } 
         else if (attempts === 0) {
-            status.innerText = "LEVEL FAILED";
-            status.style.color = "white";
+            status.innerText = "LEVEL FAILED"; status.style.color = "white"; document.body.classList.add('failed-state');
+            document.getElementById('word-display').innerText = secretWord.split('').join(' ');
             
-            document.body.classList.add('failed-state');
-            const wordDisplay = document.getElementById('word-display');
-            wordDisplay.innerText = secretWord.split('').join(' ');
+            // Submits their score to Firebase before resetting!
+            submitScoreToDatabase(currentStreak);
             
-            currentStreak = 0;
-            updateStreakUI();
-            endGame();
+            currentStreak = 0; updateStreakUI(); endGame();
         }
     }
 
     function endGame() {
-        Object.values(keyButtons).forEach(btn => {
-            if (!btn.disabled) btn.disabled = true;
-        });
-        document.getElementById('hint-btn').style.display = 'none';
-        document.getElementById('end-buttons').style.display = 'flex';
-        secretWord = ""; 
+        Object.values(keyButtons).forEach(btn => { if (!btn.disabled) btn.disabled = true; });
+        document.getElementById('hint-btn').style.display = 'none'; document.getElementById('end-buttons').style.display = 'flex'; secretWord = ""; 
     }
 </script>
 </body>
