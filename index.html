@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graphical Hangman Ultimate</title>
     
-    <!-- Custom .ico logo -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    
-    <!-- Confetti Visual Effects Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
@@ -39,30 +36,26 @@
         #app-container { width: 420px; padding: 20px; }
 
         /* --- Animations --- */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px) rotate(-1deg); }
-            75% { transform: translateX(5px) rotate(1deg); }
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px) rotate(-1deg); } 75% { transform: translateX(5px) rotate(1deg); } }
         .shake-anim { animation: shake 0.3s ease-in-out; }
-
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); background-color: #2ECC71; color: white; }
-            100% { transform: scale(1); }
-        }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); background-color: #2ECC71; color: white; } 100% { transform: scale(1); } }
         .pop-anim { animation: pop 0.2s ease-in-out; }
 
         /* --- Overlays (Tutorial & Leaderboard) --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--overlay-bg); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-box { background-color: var(--bg-color); color: var(--text-color); padding: 30px; border-radius: 10px; width: 90%; max-width: 400px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .modal-box h2 { margin-top: 0; color: #1ABC9C; text-align: center; }
+        .modal-box h2 { margin-top: 0; color: #1ABC9C; text-align: center; margin-bottom: 20px; }
         .modal-box p { font-size: 15px; line-height: 1.5; }
         .name-input { width: 100%; padding: 10px; margin-top: 10px; border: 2px solid #BDC3C7; border-radius: 5px; font-size: 16px; box-sizing: border-box; font-weight:bold; text-align:center; }
         .practice-area { background-color: var(--key-bg); padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; }
         .practice-word { font-family: 'Courier New', Courier, monospace; font-size: 24px; font-weight: bold; letter-spacing: 3px; }
 
-        /* Leaderboard */
+        /* Leaderboard Upgrades */
+        .lb-tabs { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .lb-tab-btn { flex: 1; margin: 0 5px; padding: 8px; font-size: 13px; font-weight: bold; background-color: var(--key-bg); color: var(--text-color); border: none; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .lb-tab-btn:hover { background-color: var(--key-hover); }
+        .lb-tab-active { background-color: #9B59B6 !important; color: white !important; }
+        
         .lb-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--key-hover); font-weight: bold; }
         .lb-row:nth-child(1) { color: #F1C40F; font-size: 18px; }
         .lb-row:nth-child(2) { color: #BDC3C7; font-size: 16px; }
@@ -110,11 +103,10 @@
 </head>
 <body>
 
-<!-- Header UI -->
 <div id="coin-display">💰 <span id="coin-count">0</span></div>
 <button id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">🌙</button>
 
-<!-- 1. Tutorial Overlay -->
+<!-- Tutorial Overlay -->
 <div id="tutorial-overlay" class="overlay">
     <div class="modal-box">
         <h2>How to Play 📖</h2>
@@ -135,11 +127,18 @@
     </div>
 </div>
 
-<!-- 2. Leaderboard Overlay -->
+<!-- Upgraded Leaderboard Overlay -->
 <div id="leaderboard-overlay" class="overlay">
     <div class="modal-box">
-        <h2>🏆 Global Top 5 🏆</h2>
-        <div id="leaderboard-list" style="margin-top: 20px; margin-bottom: 20px;">
+        <h2>🏆 Global Rankings 🏆</h2>
+        
+        <div class="lb-tabs">
+            <button id="tab-streak" class="lb-tab-btn lb-tab-active" onclick="fetchLeaderboard('streak')">🔥 Streaks</button>
+            <button id="tab-coins" class="lb-tab-btn" onclick="fetchLeaderboard('coins')">💰 Wealth</button>
+            <button id="tab-wins" class="lb-tab-btn" onclick="fetchLeaderboard('wins')">🏆 Wins</button>
+        </div>
+
+        <div id="leaderboard-list" style="margin-bottom: 20px; min-height: 180px;">
             <p style="text-align: center;">Loading scores...</p>
         </div>
         <button class="category-btn back-btn" style="width: 100%;" onclick="closeLeaderboard()">Close</button>
@@ -147,7 +146,6 @@
 </div>
 
 <div id="app-container">
-    <!-- Main Menu -->
     <div id="menu-screen">
         <h1>HANGMAN</h1>
         <div class="global-stats">🌍 Global Players: <span id="global-players-count">...</span></div>
@@ -158,7 +156,6 @@
         <button class="category-btn lb-btn" onclick="showLeaderboard()" style="margin-top:30px;">🏆 Leaderboards</button>
     </div>
 
-    <!-- Subcategory Menu -->
     <div id="subcategory-screen">
         <h1>HANGMAN</h1>
         <h3 id="subcategory-title">Select a Subcategory:</h3>
@@ -166,7 +163,6 @@
         <button class="category-btn back-btn" onclick="showMenu()">🔙 Back to Menu</button>
     </div>
 
-    <!-- Game Screen -->
     <div id="game-screen">
         <div id="streak-frame">
             <div id="streak-label">🔥 STREAK: 0 &nbsp;&nbsp;&nbsp;&nbsp; 👑 BEST: 0</div>
@@ -201,57 +197,32 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- Audio Synthesizer (Zero-File Sound Effects) ---
+    // Audio Synthesizer
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
-    
     function initAudio() {
         if (!audioCtx) audioCtx = new AudioContext();
         if (audioCtx.state === 'suspended') audioCtx.resume();
     }
-
     function playTone(freq, type, duration, vol=0.1) {
         if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration);
     }
-
     window.playSound = (name) => {
         initAudio();
         if(name==='click') playTone(400, 'square', 0.05, 0.05);
         if(name==='correct') playTone(700, 'sine', 0.1, 0.1);
         if(name==='wrong') playTone(150, 'sawtooth', 0.3, 0.1);
-        if(name==='win') {
-            playTone(400, 'sine', 0.1, 0.1);
-            setTimeout(()=>playTone(523, 'sine', 0.1, 0.1), 100);
-            setTimeout(()=>playTone(659, 'sine', 0.1, 0.1), 200);
-            setTimeout(()=>playTone(784, 'sine', 0.3, 0.1), 300);
-        }
-        if(name==='lose') {
-            playTone(300, 'sawtooth', 0.2, 0.1);
-            setTimeout(()=>playTone(250, 'sawtooth', 0.2, 0.1), 200);
-            setTimeout(()=>playTone(200, 'sawtooth', 0.4, 0.1), 400);
-        }
-        if(name==='coin') {
-            playTone(900, 'sine', 0.1, 0.05);
-            setTimeout(()=>playTone(1200, 'sine', 0.3, 0.05), 100);
-        }
+        if(name==='win') { playTone(400, 'sine', 0.1, 0.1); setTimeout(()=>playTone(523, 'sine', 0.1, 0.1), 100); setTimeout(()=>playTone(659, 'sine', 0.1, 0.1), 200); setTimeout(()=>playTone(784, 'sine', 0.3, 0.1), 300); }
+        if(name==='lose') { playTone(300, 'sawtooth', 0.2, 0.1); setTimeout(()=>playTone(250, 'sawtooth', 0.2, 0.1), 200); setTimeout(()=>playTone(200, 'sawtooth', 0.4, 0.1), 400); }
+        if(name==='coin') { playTone(900, 'sine', 0.1, 0.05); setTimeout(()=>playTone(1200, 'sine', 0.3, 0.05), 100); }
     }
+    document.querySelectorAll('.category-btn, .end-btn').forEach(btn => { btn.addEventListener('click', () => { window.playSound('click'); }); });
 
-    // Wrap buttons to click
-    document.querySelectorAll('.category-btn, .end-btn').forEach(btn => {
-        btn.addEventListener('click', () => { window.playSound('click'); });
-    });
-
-    // --- Data Lists ---
+    // Data Lists
     const categories = {
         "FOOD ITEMS": { "FRUITS": ["APPLE", "BANANA", "MANGO", "ORANGE", "GRAPES", "PINEAPPLE", "WATERMELON", "PAPAYA", "GUAVA", "POMEGRANATE"], "VEGETABLES": ["POTATO", "TOMATO", "ONION", "CARROT", "CABBAGE", "CAULIFLOWER", "SPINACH", "BRINJAL"], "COOKED FOODS": ["BIRYANI", "PIZZA", "BURGER", "SUSHI", "PASTA", "TACO"] },
         "LIVING THINGS": { "LAND ANIMALS": ["LION", "TIGER", "ELEPHANT", "GIRAFFE", "ZEBRA", "HORSE", "DOG", "CAT", "WOLF", "FOX"], "AQUATIC ANIMALS": ["SHARK", "WHALE", "DOLPHIN", "OCTOPUS", "SQUID", "CRAB"], "BIRDS": ["EAGLE", "SPARROW", "PARROT", "PEACOCK", "OWL", "CROW"] },
@@ -259,11 +230,15 @@
     };
     const subcategoryEmojis = { "FRUITS": "🍎", "VEGETABLES": "🥕", "COOKED FOODS": "🍕", "LAND ANIMALS": "🐅", "AQUATIC ANIMALS": "🦈", "BIRDS": "🦅" };
 
-    // --- State Variables ---
+    // State Variables
     let currentCategoryWords = []; let secretWord = ""; let guessedLetters = new Set();
     let attempts = 6; let currentStreak = 0; let isDarkMode = false;
     let coins = parseInt(localStorage.getItem('hangmanCoins'));
     let bestStreak = parseInt(localStorage.getItem('hangmanBestStreak')) || 0;
+    
+    // NEW: Lifetime Wins tracking!
+    let lifetimeWins = parseInt(localStorage.getItem('hangmanLifetimeWins')) || 0;
+    
     let playerName = localStorage.getItem('hangmanPlayerName') || "Anonymous";
 
     // --- Backend Functions ---
@@ -274,6 +249,7 @@
             else document.getElementById('global-players-count').innerText = "1";
         } catch(e) {}
     }
+    
     async function incrementGlobalPlayers() {
         const statsRef = doc(db, "stats", "global");
         try { await updateDoc(statsRef, { totalPlayers: increment(1) }); } 
@@ -281,55 +257,70 @@
         loadGlobalStats();
     }
 
-    window.showLeaderboard = async () => {
-        document.getElementById('leaderboard-overlay').style.display = 'flex';
+    // MULTI-CATEGORY LEADERBOARD FETCHER
+    window.fetchLeaderboard = async (metric) => {
+        // Update Tab UI
+        document.querySelectorAll('.lb-tab-btn').forEach(btn => btn.classList.remove('lb-tab-active'));
+        document.getElementById(`tab-${metric}`).classList.add('lb-tab-active');
+
         const lbList = document.getElementById('leaderboard-list');
         lbList.innerHTML = "<p style='text-align:center;'>Fetching global scores...</p>";
+        
         try {
-            const q = query(collection(db, "leaderboards"), orderBy("streak", "desc"), limit(5));
+            // Tells Firebase to sort by whichever metric button was clicked!
+            const q = query(collection(db, "leaderboards"), orderBy(metric, "desc"), limit(5));
             const querySnapshot = await getDocs(q);
+            
             lbList.innerHTML = ""; let rank = 1;
             if(querySnapshot.empty) { lbList.innerHTML = "<p style='text-align:center;'>No scores yet. Be the first!</p>"; }
+            
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                lbList.innerHTML += `<div class='lb-row'><span>#${rank} ${data.name}</span><span>🔥 ${data.streak}</span></div>`; rank++;
+                
+                // Format the display string based on the category
+                let displayVal = "";
+                if(metric === 'streak') displayVal = `🔥 ${data.streak || 0}`;
+                if(metric === 'coins') displayVal = `💰 ${data.coins || 0}`;
+                if(metric === 'wins') displayVal = `🏆 ${data.wins || 0}`;
+                
+                lbList.innerHTML += `<div class='lb-row'><span>#${rank} ${data.name}</span><span>${displayVal}</span></div>`; 
+                rank++;
             });
         } catch(e) { lbList.innerHTML = "<p style='text-align:center;'>Error loading leaderboard.</p>"; }
     }
+
+    window.showLeaderboard = () => { 
+        document.getElementById('leaderboard-overlay').style.display = 'flex'; 
+        fetchLeaderboard('streak'); // Defaults to Streak when opened
+    }
     window.closeLeaderboard = () => { document.getElementById('leaderboard-overlay').style.display = 'none'; }
     
-    // UPDATED DUPLICATE-FREE LOGIC
+    // UPDATED: Syncs everything to the DB
     async function submitScoreToDatabase(finalStreak) {
-        if(finalStreak <= 0) return; // Don't submit scores of 0
+        if(finalStreak <= 0 && lifetimeWins === 0) return; // Don't upload pure zeroes
         
         try {
-            // 1. Create a unique ID based on the player's name (lowercase, no spaces)
             const uniquePlayerId = playerName.toLowerCase().replace(/\s+/g, '');
             const playerRef = doc(db, "leaderboards", uniquePlayerId);
-            
-            // 2. Check if they already exist in the database
             const docSnap = await getDoc(playerRef);
 
+            const payload = {
+                name: playerName,
+                streak: Math.max(finalStreak, bestStreak), // Keeps their highest streak
+                coins: coins, // Always updates to their current wallet
+                wins: lifetimeWins, // Always updates total wins
+                timestamp: new Date()
+            };
+
             if (docSnap.exists()) {
-                // 3. If they exist, ONLY update if their new streak is HIGHER than the old one
-                if (finalStreak > docSnap.data().streak) {
-                    await updateDoc(playerRef, { 
-                        streak: finalStreak, 
-                        timestamp: new Date(),
-                        name: playerName // Keep their preferred capitalization
-                    });
-                }
+                const data = docSnap.data();
+                // Ensure streak never goes down in the DB
+                payload.streak = Math.max(finalStreak, data.streak || 0); 
+                await updateDoc(playerRef, payload);
             } else {
-                // 4. If they don't exist yet, add them for the first time
-                await setDoc(playerRef, { 
-                    name: playerName, 
-                    streak: finalStreak, 
-                    timestamp: new Date() 
-                });
+                await setDoc(playerRef, payload);
             }
-        } catch(e) { 
-            console.error("Error saving score: ", e); 
-        }
+        } catch(e) { console.error("Error saving score: ", e); }
     }
 
     // --- Setup & Tutorial ---
@@ -354,7 +345,7 @@
     }
 
     window.closeTutorial = () => {
-        initAudio(); // Required interaction to unlock audio API
+        initAudio(); 
         const nameInput = document.getElementById('player-name-input').value.trim();
         if(nameInput) { playerName = nameInput; localStorage.setItem('hangmanPlayerName', playerName); }
         localStorage.setItem('hangmanTutorialCompleted', 'true');
@@ -436,7 +427,7 @@
 
         for (const [letter, btn] of Object.entries(keyButtons)) { 
             btn.disabled = false; btn.className = 'key-btn'; btn.innerText = letter; 
-            btn.classList.remove('pop-anim'); // reset animations
+            btn.classList.remove('pop-anim'); 
         }
         drawHangman();
 
@@ -457,24 +448,17 @@
     function updateStreakUI() { document.getElementById('streak-label').innerHTML = `🔥 STREAK: ${currentStreak} &nbsp;&nbsp;&nbsp;&nbsp; 👑 BEST: ${bestStreak}`; }
 
     function handleGuess(letter, isPreReveal = false) {
-        initAudio(); // Failsafe init
+        initAudio();
         guessedLetters.add(letter); const btn = keyButtons[letter];
         
         if (secretWord.includes(letter)) { 
-            if (!isPreReveal) {
-                window.playSound('correct'); 
-                btn.classList.add('pop-anim'); // Visual Pop
-            }
+            if (!isPreReveal) { window.playSound('correct'); btn.classList.add('pop-anim'); }
             btn.classList.add('key-correct'); btn.disabled = true; 
         } else {
             if (!isPreReveal) {
-                attempts--;
-                window.playSound('wrong');
-                // Canvas visual shake
+                attempts--; window.playSound('wrong');
                 const canvas = document.getElementById('hangman-canvas');
-                canvas.classList.remove('shake-anim');
-                void canvas.offsetWidth; // trigger reflow
-                canvas.classList.add('shake-anim');
+                canvas.classList.remove('shake-anim'); void canvas.offsetWidth; canvas.classList.add('shake-anim');
             }
             btn.classList.add('key-wrong'); btn.innerText = "✕"; btn.disabled = true; drawHangman();
         }
@@ -485,8 +469,7 @@
         if (coins >= 15) {
             const unguessed = secretWord.split('').filter(char => !guessedLetters.has(char));
             if (unguessed.length > 0) { 
-                window.playSound('coin');
-                updateCoins(-15); 
+                window.playSound('coin'); updateCoins(-15); 
                 handleGuess(unguessed[Math.floor(Math.random() * unguessed.length)]); 
             }
         }
@@ -506,7 +489,6 @@
         if (attempts < 2) { ctx.moveTo(200, 160); ctx.lineTo(170, 200); }
         if (attempts < 1) { ctx.moveTo(200, 160); ctx.lineTo(230, 200); }
         ctx.stroke();
-
         if (attempts === 0) { ctx.fillStyle = "#E74C3C"; ctx.font = "bold 12px Arial"; ctx.fillText("x", 188, 74); ctx.fillText("x", 204, 74); }
     }
 
@@ -516,20 +498,28 @@
 
         if (isWin) {
             window.playSound('win');
-            
-            // Fire Confetti!
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
 
             status.innerText = "YOU WON! +10 💰"; status.style.color = "#F39C12";
-            currentStreak++; updateCoins(10);
+            
+            // Add to lifetime stats
+            currentStreak++; 
+            lifetimeWins++; 
+            localStorage.setItem('hangmanLifetimeWins', lifetimeWins);
+            updateCoins(10);
+            
             if (currentStreak > bestStreak) { bestStreak = currentStreak; localStorage.setItem('hangmanBestStreak', bestStreak); }
             updateStreakUI(); endGame();
+            
+            // Sync to Database on Win too!
+            submitScoreToDatabase(currentStreak);
         } 
         else if (attempts === 0) {
             window.playSound('lose');
             status.innerText = "LEVEL FAILED"; status.style.color = "white"; document.body.classList.add('failed-state');
             document.getElementById('word-display').innerText = secretWord.split('').join(' ');
             
+            // Sync to Database on Lose
             submitScoreToDatabase(currentStreak);
             
             currentStreak = 0; updateStreakUI(); endGame();
