@@ -4,41 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graphical Hangman Ultimate</title>
-    <!-- Your custom .ico logo -->
+    
+    <!-- Custom .ico logo -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- Confetti Visual Effects Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
         /* --- CSS Variables --- */
         :root {
-            --bg-color: #FDF6E3;
-            --text-color: #2C3E50;
-            --subtitle-color: #7F8C8D;
-            --key-bg: #ECF0F1;
-            --key-text: #2C3E50;
-            --key-hover: #BDC3C7;
-            --hangman-stick: #34495E;
-            --fail-bg: #2C3E50;
-            --fail-text: white;
-            --overlay-bg: rgba(44, 62, 80, 0.9);
+            --bg-color: #FDF6E3; --text-color: #2C3E50; --subtitle-color: #7F8C8D;
+            --key-bg: #ECF0F1; --key-text: #2C3E50; --key-hover: #BDC3C7;
+            --hangman-stick: #34495E; --fail-bg: #2C3E50; --fail-text: white; --overlay-bg: rgba(44, 62, 80, 0.9);
         }
 
         body.dark-mode {
-            --bg-color: #121212;
-            --text-color: #E0E0E0;
-            --subtitle-color: #A0A0A0;
-            --key-bg: #2A2A2A;
-            --key-text: #E0E0E0;
-            --key-hover: #404040;
-            --hangman-stick: #E0E0E0;
-            --fail-bg: #1A1A1A;
-            --fail-text: #E74C3C;
-            --overlay-bg: rgba(0, 0, 0, 0.9);
+            --bg-color: #121212; --text-color: #E0E0E0; --subtitle-color: #A0A0A0;
+            --key-bg: #2A2A2A; --key-text: #E0E0E0; --key-hover: #404040;
+            --hangman-stick: #E0E0E0; --fail-bg: #1A1A1A; --fail-text: #E74C3C; --overlay-bg: rgba(0, 0, 0, 0.9);
         }
 
         body {
             background-color: var(--bg-color); font-family: 'Helvetica', Arial, sans-serif;
             color: var(--text-color); margin: 0; display: flex; justify-content: center;
-            align-items: center; min-height: 100vh; text-align: center;
-            transition: background-color 0.3s, color 0.3s;
+            align-items: center; min-height: 100vh; text-align: center; transition: background-color 0.3s, color 0.3s;
         }
 
         /* --- Header UI --- */
@@ -48,43 +38,43 @@
 
         #app-container { width: 420px; padding: 20px; }
 
+        /* --- Animations --- */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-1deg); }
+            75% { transform: translateX(5px) rotate(1deg); }
+        }
+        .shake-anim { animation: shake 0.3s ease-in-out; }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); background-color: #2ECC71; color: white; }
+            100% { transform: scale(1); }
+        }
+        .pop-anim { animation: pop 0.2s ease-in-out; }
+
         /* --- Overlays (Tutorial & Leaderboard) --- */
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--overlay-bg); z-index: 1000;
-            display: none; justify-content: center; align-items: center;
-        }
-        .modal-box {
-            background-color: var(--bg-color); color: var(--text-color);
-            padding: 30px; border-radius: 10px; width: 90%; max-width: 400px;
-            text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--overlay-bg); z-index: 1000; display: none; justify-content: center; align-items: center; }
+        .modal-box { background-color: var(--bg-color); color: var(--text-color); padding: 30px; border-radius: 10px; width: 90%; max-width: 400px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .modal-box h2 { margin-top: 0; color: #1ABC9C; text-align: center; }
         .modal-box p { font-size: 15px; line-height: 1.5; }
-        
         .name-input { width: 100%; padding: 10px; margin-top: 10px; border: 2px solid #BDC3C7; border-radius: 5px; font-size: 16px; box-sizing: border-box; font-weight:bold; text-align:center; }
-        
         .practice-area { background-color: var(--key-bg); padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; }
         .practice-word { font-family: 'Courier New', Courier, monospace; font-size: 24px; font-weight: bold; letter-spacing: 3px; }
 
-        /* Leaderboard Specifics */
+        /* Leaderboard */
         .lb-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--key-hover); font-weight: bold; }
-        .lb-row:nth-child(1) { color: #F1C40F; font-size: 18px; } /* Gold */
-        .lb-row:nth-child(2) { color: #BDC3C7; font-size: 16px; } /* Silver */
-        .lb-row:nth-child(3) { color: #CD7F32; font-size: 16px; } /* Bronze */
+        .lb-row:nth-child(1) { color: #F1C40F; font-size: 18px; }
+        .lb-row:nth-child(2) { color: #BDC3C7; font-size: 16px; }
+        .lb-row:nth-child(3) { color: #CD7F32; font-size: 16px; }
 
         /* --- Menu UI --- */
         #menu-screen h1, #subcategory-screen h1 { font-size: 40px; margin-bottom: 5px; }
         #menu-screen h3, #subcategory-screen h3 { font-size: 16px; color: var(--subtitle-color); margin-bottom: 20px; }
         .global-stats { font-size: 14px; font-weight: bold; color: #1ABC9C; margin-bottom: 30px; }
-        
         #subcategory-screen { display: none; }
-
-        .category-btn {
-            font-size: 14px; font-weight: bold; width: 250px;
-            background-color: #1ABC9C; color: white; padding: 12px; border: none; border-radius: 5px;
-            margin: 10px auto; cursor: pointer; display: block;
-        }
+        .category-btn { font-size: 14px; font-weight: bold; width: 250px; background-color: #1ABC9C; color: white; padding: 12px; border: none; border-radius: 5px; margin: 10px auto; cursor: pointer; display: block; transition: transform 0.1s; }
+        .category-btn:active { transform: scale(0.95); }
         .category-btn:hover { background-color: #16A085; }
         .lb-btn { background-color: #9B59B6; }
         .lb-btn:hover { background-color: #8E44AD; }
@@ -95,31 +85,24 @@
         #game-screen { display: none; }
         #streak-frame { background-color: #2C3E50; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
         #streak-label { color: #F1C40F; font-size: 14px; font-weight: bold; }
-
         canvas { background-color: var(--bg-color); margin: 10px 0; border-radius: 5px; transition: background-color 0.3s; }
-
         #word-display { font-family: 'Courier New', Courier, monospace; font-size: 30px; font-weight: bold; margin: 15px 0; letter-spacing: 5px; white-space: nowrap; color: var(--text-color); }
-
         .keyboard-row { display: flex; justify-content: center; margin-bottom: 5px; }
-        .key-btn {
-            font-size: 13px; font-weight: bold; width: 35px; height: 35px;
-            background-color: var(--key-bg); color: var(--key-text); border: none; margin: 0 3px; border-radius: 3px; cursor: pointer; transition: background-color 0.2s, color 0.2s;
-        }
+        .key-btn { font-size: 13px; font-weight: bold; width: 35px; height: 35px; background-color: var(--key-bg); color: var(--key-text); border: none; margin: 0 3px; border-radius: 3px; cursor: pointer; transition: background-color 0.2s, color 0.2s, transform 0.1s; }
+        .key-btn:active:not(:disabled) { transform: scale(0.9); }
         .key-btn:hover:not(:disabled) { background-color: var(--key-hover); }
         .key-btn:disabled { cursor: not-allowed; color: white; }
         .key-correct { background-color: #2ECC71 !important; color: white !important; }
         .key-wrong { background-color: var(--bg-color) !important; color: var(--key-hover) !important; } 
-
         #status-label { font-size: 24px; font-weight: bold; margin: 10px 0; min-height: 30px; }
-
-        #hint-btn { font-size: 14px; font-weight: bold; background-color: #F39C12; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; }
+        #hint-btn { font-size: 14px; font-weight: bold; background-color: #F39C12; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; transition: transform 0.1s; }
+        #hint-btn:active:not(:disabled) { transform: scale(0.95); }
         #hint-btn:disabled { background-color: #BDC3C7 !important; cursor: not-allowed; }
-
         #end-buttons { display: none; justify-content: space-between; margin-top: 15px; }
-        .end-btn { font-size: 14px; font-weight: bold; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; width: 45%; }
+        .end-btn { font-size: 14px; font-weight: bold; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; width: 45%; transition: transform 0.1s; }
+        .end-btn:active { transform: scale(0.95); }
         #play-next-btn { background-color: #2ECC71; }
         #menu-back-btn { background-color: #3498DB; }
-
         body.failed-state { background-color: var(--fail-bg) !important; color: var(--fail-text) !important; }
         body.failed-state canvas { background-color: var(--fail-bg) !important; }
         body.failed-state #word-display { color: #E74C3C !important; }
@@ -202,11 +185,9 @@
 
 <!-- FIREBASE & GAME LOGIC -->
 <script type="module">
-    // 1. Import Firebase from Google's CDN
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // 2. Your Exact Database Keys
     const firebaseConfig = {
       apiKey: "AIzaSyAaqoUGldUQKrd-lcuD-5qdcuJDxztWXZw",
       authDomain: "hangman-ultimate.firebaseapp.com",
@@ -220,31 +201,67 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // --- Audio Synthesizer (Zero-File Sound Effects) ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    
+    function initAudio() {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playTone(freq, type, duration, vol=0.1) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    window.playSound = (name) => {
+        initAudio();
+        if(name==='click') playTone(400, 'square', 0.05, 0.05);
+        if(name==='correct') playTone(700, 'sine', 0.1, 0.1);
+        if(name==='wrong') playTone(150, 'sawtooth', 0.3, 0.1);
+        if(name==='win') {
+            playTone(400, 'sine', 0.1, 0.1);
+            setTimeout(()=>playTone(523, 'sine', 0.1, 0.1), 100);
+            setTimeout(()=>playTone(659, 'sine', 0.1, 0.1), 200);
+            setTimeout(()=>playTone(784, 'sine', 0.3, 0.1), 300);
+        }
+        if(name==='lose') {
+            playTone(300, 'sawtooth', 0.2, 0.1);
+            setTimeout(()=>playTone(250, 'sawtooth', 0.2, 0.1), 200);
+            setTimeout(()=>playTone(200, 'sawtooth', 0.4, 0.1), 400);
+        }
+        if(name==='coin') {
+            playTone(900, 'sine', 0.1, 0.05);
+            setTimeout(()=>playTone(1200, 'sine', 0.3, 0.05), 100);
+        }
+    }
+
+    // Wrap buttons to click
+    document.querySelectorAll('.category-btn, .end-btn').forEach(btn => {
+        btn.addEventListener('click', () => { window.playSound('click'); });
+    });
+
     // --- Data Lists ---
     const categories = {
-        "FOOD ITEMS": {
-            "FRUITS": ["APPLE", "BANANA", "MANGO", "ORANGE", "GRAPES", "PINEAPPLE", "WATERMELON", "PAPAYA", "GUAVA", "POMEGRANATE", "STRAWBERRY", "KIWI", "PEACH", "PLUM", "LYCHEE"],
-            "VEGETABLES": ["POTATO", "TOMATO", "ONION", "CARROT", "CABBAGE", "CAULIFLOWER", "SPINACH", "BRINJAL", "CUCUMBER", "PUMPKIN", "BEETROOT", "RADISH", "CAPSICUM", "PEAS", "LADYFINGER"],
-            "COOKED FOODS": ["BIRYANI", "PIZZA", "BURGER", "SUSHI", "CROISSANT", "TACO", "PASTA", "LASAGNA", "RAMEN", "BURRITO", "FALAFEL", "KEBAB", "FAJITA", "PAELLA", "DIMSUM", "WAFFLE", "PRETZEL", "NACHOS", "STEAK", "CAVIAR", "CHURRO"]
-        },
-        "LIVING THINGS": {
-            "LAND ANIMALS": ["LION", "TIGER", "ELEPHANT", "GIRAFFE", "ZEBRA", "HORSE", "DOG", "CAT", "WOLF", "FOX", "BEAR", "DEER", "RABBIT", "SQUIRREL", "KANGAROO", "KOALA", "PANDA", "GORILLA", "CHIMPANZEE", "MONKEY", "CAMEL", "DONKEY", "GOAT", "SHEEP", "COW", "BUFFALO", "BISON", "RHINOCEROS", "HIPPOPOTAMUS", "LEOPARD", "CHEETAH", "JAGUAR", "HYENA", "JACKAL", "MOOSE", "ELK", "REINDEER", "PORCUPINE", "HEDGEHOG", "ARMADILLO", "ANTEATER", "SLOTH", "MOLE", "BAT", "RACCOON", "SKUNK", "BADGER", "WEASEL", "MONGOOSE"],
-            "AQUATIC ANIMALS": ["OTTER", "SHARK", "WHALE", "DOLPHIN", "OCTOPUS", "SQUID", "JELLYFISH", "CRAB", "LOBSTER", "SHRIMP", "STARFISH", "SEAHORSE", "SEAURCHIN", "CLAM", "OYSTER", "MUSSEL", "SEASNAIL", "CORAL", "SEAANEMONE", "STINGRAY", "EEL", "TUNA", "SALMON", "TROUT", "CATFISH", "GOLDFISH", "CLOWNFISH", "ANGELFISH", "SWORDFISH", "MARLIN", "BARRACUDA", "PUFFERFISH", "MANTARAY", "SEATURTLE", "SEALION", "SEAL", "WALRUS", "NARWHAL", "ORCA", "MANATEE", "DUGONG", "SEAOTTER", "SEACUCUMBER", "NAUTILUS", "KRILL", "PLANKTON", "HERRING", "SARDINE", "MACKEREL", "HAMMERHEADSHARK", "PIRANHA"],
-            "BIRDS": ["EAGLE", "SPARROW", "PARROT", "PEACOCK", "OWL", "CROW", "PIGEON", "SWAN", "FLAMINGO", "PENGUIN", "WOODPECKER", "OSTRICH", "FALCON", "HUMMINGBIRD", "KINGFHISHER", "CUCKOO", "VULTURE", "HERON","SEAGULL", "SEACROW"]
-        },
-        "ANY WORD": [
-            "APPLE", "ANT", "AIRPLANE", "ACTOR", "ANSWER", "BALL", "BOOK", "BANANA", "BRIDGE", "BUTTERFLY", "CAT", "CAR", "CANDLE", "CASTLE", "CIRCLE", "DOG", "DOOR", "DRAGON", "DIAMOND", "DESERT", "ELEPHANT", "EAGLE", "ENGINE", "ENERGY", "ECHO", "FISH", "FLOWER", "FOREST", "FAMILY", "FREEDOM", "GARDEN", "GUITAR", "GALAXY", "GHOST", "GIRAFFE", "HOUSE", "HORSE", "HONEY", "HAMMER", "HARMONY", "ISLAND", "ICE", "IDEA", "INSTRUMENT", "IRON", "JUNGLE", "JACKET", "JOURNEY", "JEWEL", "JIGSAW", "KITE", "KEY", "KITCHEN", "KINGDOM", "KOALA", "LION", "LAMP", "LIBRARY", "LEMON", "LADDER", "MOUNTAIN", "MOON", "MUSIC", "MIRROR", "MAGNET", "NIGHT", "NEST", "NATION", "NEEDLE", "NECTAR", "OCEAN", "ORANGE", "OXYGEN", "OWL", "ORBIT", "PIANO", "PLANET", "PENCIL", "PUZZLE", "PALACE", "QUEEN", "QUILT", "QUARTZ", "QUESTION", "QUEST", "RIVER", "RAINBOW", "ROCKET", "ROBOT", "RIBBON", "SUN", "STAR", "SNAKE", "SILVER", "SYMPHONY", "TIGER", "TREE", "TRAIN", "TEMPLE", "TRUMPET", "UMBRELLA", "UNIVERSE", "UNICORN", "UNIFORM", "UTENSIL", "VALLEY", "VIOLIN", "VOLCANO", "VILLAGE", "VITAMIN", "WATER", "WINDOW", "WIZARD", "WOLF", "WONDER", "XYLOPHONE", "XRAY", "XENON", "XEROX", "XMAS", "YELLOW", "YACHT", "YOGURT", "YARN", "YOUTH", "ZEBRA", "ZOO", "ZERO", "ZENITH", "ZEPHYR"
-        ]
+        "FOOD ITEMS": { "FRUITS": ["APPLE", "BANANA", "MANGO", "ORANGE", "GRAPES", "PINEAPPLE", "WATERMELON", "PAPAYA", "GUAVA", "POMEGRANATE"], "VEGETABLES": ["POTATO", "TOMATO", "ONION", "CARROT", "CABBAGE", "CAULIFLOWER", "SPINACH", "BRINJAL"], "COOKED FOODS": ["BIRYANI", "PIZZA", "BURGER", "SUSHI", "PASTA", "TACO"] },
+        "LIVING THINGS": { "LAND ANIMALS": ["LION", "TIGER", "ELEPHANT", "GIRAFFE", "ZEBRA", "HORSE", "DOG", "CAT", "WOLF", "FOX"], "AQUATIC ANIMALS": ["SHARK", "WHALE", "DOLPHIN", "OCTOPUS", "SQUID", "CRAB"], "BIRDS": ["EAGLE", "SPARROW", "PARROT", "PEACOCK", "OWL", "CROW"] },
+        "ANY WORD": ["APPLE", "AIRPLANE", "GUITAR", "GALAXY", "GHOST", "MOUNTAIN", "OCEAN", "PIANO", "PLANET", "ROCKET", "UNIVERSE"]
     };
     const subcategoryEmojis = { "FRUITS": "🍎", "VEGETABLES": "🥕", "COOKED FOODS": "🍕", "LAND ANIMALS": "🐅", "AQUATIC ANIMALS": "🦈", "BIRDS": "🦅" };
 
     // --- State Variables ---
-    let currentCategoryWords = [];
-    let secretWord = "";
-    let guessedLetters = new Set();
-    let attempts = 6;
-    let currentStreak = 0;
-    let isDarkMode = false;
+    let currentCategoryWords = []; let secretWord = ""; let guessedLetters = new Set();
+    let attempts = 6; let currentStreak = 0; let isDarkMode = false;
     let coins = parseInt(localStorage.getItem('hangmanCoins'));
     let bestStreak = parseInt(localStorage.getItem('hangmanBestStreak')) || 0;
     let playerName = localStorage.getItem('hangmanPlayerName') || "Anonymous";
@@ -253,52 +270,36 @@
     async function loadGlobalStats() {
         try {
             const docSnap = await getDoc(doc(db, "stats", "global"));
-            if (docSnap.exists()) {
-                document.getElementById('global-players-count').innerText = docSnap.data().totalPlayers;
-            } else {
-                document.getElementById('global-players-count').innerText = "1";
-            }
-        } catch(e) { console.error(e); }
+            if (docSnap.exists()) document.getElementById('global-players-count').innerText = docSnap.data().totalPlayers;
+            else document.getElementById('global-players-count').innerText = "1";
+        } catch(e) {}
     }
-
     async function incrementGlobalPlayers() {
         const statsRef = doc(db, "stats", "global");
-        try {
-            await updateDoc(statsRef, { totalPlayers: increment(1) });
-        } catch (e) {
-            await setDoc(statsRef, { totalPlayers: 1 }); // Creates it if it's the very first time!
-        }
-        loadGlobalStats(); // Refresh the counter
+        try { await updateDoc(statsRef, { totalPlayers: increment(1) }); } 
+        catch (e) { await setDoc(statsRef, { totalPlayers: 1 }); }
+        loadGlobalStats();
     }
 
     window.showLeaderboard = async () => {
         document.getElementById('leaderboard-overlay').style.display = 'flex';
         const lbList = document.getElementById('leaderboard-list');
         lbList.innerHTML = "<p style='text-align:center;'>Fetching global scores...</p>";
-        
         try {
             const q = query(collection(db, "leaderboards"), orderBy("streak", "desc"), limit(5));
             const querySnapshot = await getDocs(q);
-            lbList.innerHTML = "";
-            let rank = 1;
-            
+            lbList.innerHTML = ""; let rank = 1;
             if(querySnapshot.empty) { lbList.innerHTML = "<p style='text-align:center;'>No scores yet. Be the first!</p>"; }
-            
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                lbList.innerHTML += `<div class='lb-row'><span>#${rank} ${data.name}</span><span>🔥 ${data.streak}</span></div>`;
-                rank++;
+                lbList.innerHTML += `<div class='lb-row'><span>#${rank} ${data.name}</span><span>🔥 ${data.streak}</span></div>`; rank++;
             });
         } catch(e) { lbList.innerHTML = "<p style='text-align:center;'>Error loading leaderboard.</p>"; }
     }
-
     window.closeLeaderboard = () => { document.getElementById('leaderboard-overlay').style.display = 'none'; }
-
     async function submitScoreToDatabase(finalStreak) {
-        if(finalStreak <= 0) return; // Don't submit scores of 0
-        try {
-            await addDoc(collection(db, "leaderboards"), { name: playerName, streak: finalStreak, timestamp: new Date() });
-        } catch(e) { console.error("Error saving score: ", e); }
+        if(finalStreak <= 0) return;
+        try { await addDoc(collection(db, "leaderboards"), { name: playerName, streak: finalStreak, timestamp: new Date() }); } catch(e) {}
     }
 
     // --- Setup & Tutorial ---
@@ -308,29 +309,28 @@
         if (isNaN(coins)) updateCoins(50);
         else document.getElementById('coin-count').innerText = coins;
     }
-    loadGlobalStats(); // Runs on page load
+    loadGlobalStats();
 
     window.practiceGuess = (letter) => {
         const msg = document.getElementById('practice-msg');
         if (letter === 'N') {
+            window.playSound('correct');
             msg.innerHTML = "<span style='color:#2ECC71;'>Correct! The word is HANGMAN.</span>";
             document.getElementById('finish-tutorial-btn').style.display = 'block';
         } else {
+            window.playSound('wrong');
             msg.innerHTML = "<span style='color:#E74C3C;'>Oops! Try the other letter.</span>";
         }
     }
 
     window.closeTutorial = () => {
+        initAudio(); // Required interaction to unlock audio API
         const nameInput = document.getElementById('player-name-input').value.trim();
-        if(nameInput) {
-            playerName = nameInput;
-            localStorage.setItem('hangmanPlayerName', playerName);
-        }
+        if(nameInput) { playerName = nameInput; localStorage.setItem('hangmanPlayerName', playerName); }
         localStorage.setItem('hangmanTutorialCompleted', 'true');
         document.getElementById('tutorial-overlay').style.display = 'none';
-        
         if (isNaN(coins)) { coins = 0; updateCoins(50); }
-        incrementGlobalPlayers(); // Adds them to the global DB
+        incrementGlobalPlayers();
     }
 
     // --- Gameplay Logic ---
@@ -341,12 +341,12 @@
     function evaluateHintButton() { document.getElementById('hint-btn').disabled = (coins < 15); }
 
     window.toggleTheme = () => {
+        window.playSound('click');
         isDarkMode = !isDarkMode; document.body.classList.toggle('dark-mode', isDarkMode);
         document.getElementById('theme-toggle').innerText = isDarkMode ? '☀️' : '🌙';
         if (document.getElementById('game-screen').style.display === 'block') drawHangman();
     }
 
-    // Keyboard Setup
     const keyboardLayout = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
     const keyboardDiv = document.getElementById('keyboard');
     const keyButtons = {};
@@ -367,13 +367,13 @@
         if (secretWord && attempts > 0 && /^[A-Z]$/.test(key)) { if (!guessedLetters.has(key)) handleGuess(key); }
     });
 
-    // Screen Nav
     window.showMenu = () => {
         document.getElementById('game-screen').style.display = 'none'; document.getElementById('subcategory-screen').style.display = 'none';
         document.getElementById('menu-screen').style.display = 'block'; document.body.classList.remove('failed-state');
     }
 
     window.selectCategory = (category) => {
+        initAudio();
         if (Array.isArray(categories[category])) {
             currentCategoryWords = categories[category]; document.getElementById('menu-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'block'; window.startGame();
@@ -385,7 +385,7 @@
             for (let subcat in categories[category]) {
                 const btn = document.createElement('button'); btn.className = 'category-btn';
                 const icon = subcategoryEmojis[subcat] || "🔹"; const formattedName = subcat.charAt(0) + subcat.slice(1).toLowerCase();
-                btn.innerText = `${icon} ${formattedName}`; btn.onclick = () => window.selectSubcategory(category, subcat);
+                btn.innerText = `${icon} ${formattedName}`; btn.onclick = () => { window.playSound('click'); window.selectSubcategory(category, subcat); };
                 subContainer.appendChild(btn);
             }
             document.getElementById('subcategory-screen').style.display = 'block';
@@ -404,7 +404,10 @@
         document.getElementById('hint-btn').style.display = 'inline-block'; evaluateHintButton();
         document.getElementById('status-label').innerText = ""; updateStreakUI();
 
-        for (const [letter, btn] of Object.entries(keyButtons)) { btn.disabled = false; btn.className = 'key-btn'; btn.innerText = letter; }
+        for (const [letter, btn] of Object.entries(keyButtons)) { 
+            btn.disabled = false; btn.className = 'key-btn'; btn.innerText = letter; 
+            btn.classList.remove('pop-anim'); // reset animations
+        }
         drawHangman();
 
         const uniqueLetters = [...new Set(secretWord)];
@@ -424,10 +427,25 @@
     function updateStreakUI() { document.getElementById('streak-label').innerHTML = `🔥 STREAK: ${currentStreak} &nbsp;&nbsp;&nbsp;&nbsp; 👑 BEST: ${bestStreak}`; }
 
     function handleGuess(letter, isPreReveal = false) {
+        initAudio(); // Failsafe init
         guessedLetters.add(letter); const btn = keyButtons[letter];
-        if (secretWord.includes(letter)) { btn.classList.add('key-correct'); btn.disabled = true; } 
-        else {
-            if (!isPreReveal) attempts--;
+        
+        if (secretWord.includes(letter)) { 
+            if (!isPreReveal) {
+                window.playSound('correct'); 
+                btn.classList.add('pop-anim'); // Visual Pop
+            }
+            btn.classList.add('key-correct'); btn.disabled = true; 
+        } else {
+            if (!isPreReveal) {
+                attempts--;
+                window.playSound('wrong');
+                // Canvas visual shake
+                const canvas = document.getElementById('hangman-canvas');
+                canvas.classList.remove('shake-anim');
+                void canvas.offsetWidth; // trigger reflow
+                canvas.classList.add('shake-anim');
+            }
             btn.classList.add('key-wrong'); btn.innerText = "✕"; btn.disabled = true; drawHangman();
         }
         updateWordDisplay(); if (!isPreReveal) checkGameOver();
@@ -436,7 +454,11 @@
     window.useHint = () => {
         if (coins >= 15) {
             const unguessed = secretWord.split('').filter(char => !guessedLetters.has(char));
-            if (unguessed.length > 0) { updateCoins(-15); handleGuess(unguessed[Math.floor(Math.random() * unguessed.length)]); }
+            if (unguessed.length > 0) { 
+                window.playSound('coin');
+                updateCoins(-15); 
+                handleGuess(unguessed[Math.floor(Math.random() * unguessed.length)]); 
+            }
         }
     }
 
@@ -463,16 +485,21 @@
         const status = document.getElementById('status-label');
 
         if (isWin) {
+            window.playSound('win');
+            
+            // Fire Confetti!
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+
             status.innerText = "YOU WON! +10 💰"; status.style.color = "#F39C12";
             currentStreak++; updateCoins(10);
             if (currentStreak > bestStreak) { bestStreak = currentStreak; localStorage.setItem('hangmanBestStreak', bestStreak); }
             updateStreakUI(); endGame();
         } 
         else if (attempts === 0) {
+            window.playSound('lose');
             status.innerText = "LEVEL FAILED"; status.style.color = "white"; document.body.classList.add('failed-state');
             document.getElementById('word-display').innerText = secretWord.split('').join(' ');
             
-            // Submits their score to Firebase before resetting!
             submitScoreToDatabase(currentStreak);
             
             currentStreak = 0; updateStreakUI(); endGame();
