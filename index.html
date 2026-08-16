@@ -186,7 +186,7 @@
 <!-- FIREBASE & GAME LOGIC -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAaqoUGldUQKrd-lcuD-5qdcuJDxztWXZw",
@@ -297,9 +297,39 @@
         } catch(e) { lbList.innerHTML = "<p style='text-align:center;'>Error loading leaderboard.</p>"; }
     }
     window.closeLeaderboard = () => { document.getElementById('leaderboard-overlay').style.display = 'none'; }
+    
+    // UPDATED DUPLICATE-FREE LOGIC
     async function submitScoreToDatabase(finalStreak) {
-        if(finalStreak <= 0) return;
-        try { await addDoc(collection(db, "leaderboards"), { name: playerName, streak: finalStreak, timestamp: new Date() }); } catch(e) {}
+        if(finalStreak <= 0) return; // Don't submit scores of 0
+        
+        try {
+            // 1. Create a unique ID based on the player's name (lowercase, no spaces)
+            const uniquePlayerId = playerName.toLowerCase().replace(/\s+/g, '');
+            const playerRef = doc(db, "leaderboards", uniquePlayerId);
+            
+            // 2. Check if they already exist in the database
+            const docSnap = await getDoc(playerRef);
+
+            if (docSnap.exists()) {
+                // 3. If they exist, ONLY update if their new streak is HIGHER than the old one
+                if (finalStreak > docSnap.data().streak) {
+                    await updateDoc(playerRef, { 
+                        streak: finalStreak, 
+                        timestamp: new Date(),
+                        name: playerName // Keep their preferred capitalization
+                    });
+                }
+            } else {
+                // 4. If they don't exist yet, add them for the first time
+                await setDoc(playerRef, { 
+                    name: playerName, 
+                    streak: finalStreak, 
+                    timestamp: new Date() 
+                });
+            }
+        } catch(e) { 
+            console.error("Error saving score: ", e); 
+        }
     }
 
     // --- Setup & Tutorial ---
